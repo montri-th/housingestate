@@ -52,9 +52,13 @@ export function registerDataNames({index, data}) {
   for (const p of index?.provinces || []) if (p.nameEn) pairs.push([p.name, p.nameEn], [`จังหวัด${p.name}`, p.nameEn]);
   const bangkok = (index?.provinces || []).find(p => p.id === 'BKK')?.nameEn;
   if (bangkok) pairs.push(['กรุงเทพฯ', bangkok], ['กรุงเทพ', bangkok]);
+  // A district the area index has no English for (Wiang Kao, Khon Kaen, 4029) keeps its Thai name, with and without its
+  // word, like every name the data carries no English for (0.1.4).
+  const thaiAreas = [];
   for (const a of index?.areas || []) {
-    if (!a.nameEn) continue;
-    pairs.push([a.name, a.nameEn], [`${a.province === 'BKK' ? 'เขต' : 'อำเภอ'}${a.name}`, a.nameEn]);
+    const word = `${a.province === 'BKK' ? 'เขต' : 'อำเภอ'}${a.name}`;
+    if (!a.nameEn) { thaiAreas.push(a.name, word); continue; }
+    pairs.push([a.name, a.nameEn], [word, a.nameEn]);
   }
   // Stations: the name alone, with “สถานี”, and with their lines as js/panel.js writes them (“อโศก (สุขุมวิท)”).
   const lineEn = l => (THAI.test(l) ? HOUSING_EN.exact[l] || null : l);
@@ -77,7 +81,7 @@ export function registerDataNames({index, data}) {
   for (const u of data?.companies || []) thaiNames.push(u.name, ...u.brands);
   for (const s of data?.sites || []) thaiNames.push(s.name, s.brand);
   registerNames(pairs);
-  keepThai([...thaiNames, ...thaiStations].filter(v => v && THAI.test(v)));
+  keepThai([...thaiNames, ...thaiStations, ...thaiAreas].filter(v => v && THAI.test(v)));
 }
 
 /** The records file (loaded after the first paint): DOL record names, other names, allocators and DOL places stay Thai. */

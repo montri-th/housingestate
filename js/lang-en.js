@@ -442,6 +442,10 @@ export default {
     [re(`อันดับ ${N} (.+?) ${N} (แปลง|รายการ|โครงการ)(?: (.+))?`), (m, t) => `No. ${m[1]} ${t.name(m[2])}: ${m[4] === 'โครงการ' ? projects(t, m[3]) : unitOf(t, m[3], m[4])}${m[5] ? `, ${t.text(m[5]) || m[5]}` : ''}`],
     [re(`อันดับ ${N} (.+?): ${N} ${U}(?: (.+))?`), (m, t) => `No. ${m[1]} ${t.name(m[2])}: ${unitOf(t, m[3], m[4])}${m[5] ? `, ${t.text(m[5]) || m[5]}` : ''}`],
     [re(`(.+) ${N} ${U} กดเพื่อดูจังหวัด`), (m, t) => { const p = t.known(m[1]); return p ? `${p}, ${unitOf(t, m[2], m[3])}, select to view the province` : null; }],
+    // The last part of a map chip's label (“กรุงเทพมหานคร · 41,213 แปลง · 3,787 รายการ กดเพื่อดูจังหวัด”, js/map-layers.js:
+    // its title, then the verb); the parts before it are a name and a measure the rules above already read (0.1.4).
+    [re(`${N} ${U} กดเพื่อดูจังหวัด`), (m, t) => `${unitOf(t, m[1], m[2])}, select to view the province`],
+    [re(`${N} ${U} กดเพื่อดูเขตหรืออำเภอ`), (m, t) => `${unitOf(t, m[1], m[2])}, select to view the district`],
     [re(`สถานี(.+) ${N} โครงการ`), (m, t) => { const st = t.known(`สถานี${m[1]}`); return st ? `${st}, ${projects(t, m[2])}` : null; }],
     // Map
     [re(`โครงการในจอ ${N} โครงการ(?: · จุดนอกโฟกัส ${N} จุด)?`), (m, t) => `${projects(t, m[1])} on screen${m[2] ? ` · ${m[2]} points outside the focus` : ''}`],

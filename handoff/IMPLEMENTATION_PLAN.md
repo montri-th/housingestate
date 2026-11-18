@@ -1,4 +1,4 @@
-# CityMETER Housing Estate — Implementation Plan (0.1.3)
+# CityMETER Housing Estate — Implementation Plan (0.1.4)
 
 คู่กับ `implementation-plan.json` (เครื่องตรวจ)
 
@@ -22,7 +22,7 @@ Static site บน GitHub Pages — ES modules ผ่าน import map (ทุ�
 
 ## งาน
 
-T1 อ่านไฟล์ส่งออก (`scripts/xlsx-to-csv.py`) · T2 จับคู่หมุดกับกรอบ OSM (`scripts/match-extents.py`) · T3 สร้างข้อมูลและตรวจยอดกับ production (`scripts/build-data.py`) · T4 model ข้อค้นพบ และการค้นหา · T5 แผนที่ (ชิปอำเภอ กรอบและอาคารในกรอบ) · T6 แผง กราฟ ตาราง · T7 ภาษาอังกฤษ · T8 shell 0.6.3 · T9 เอกสาร handoff release · T10 เผยแพร่ ตรวจ live และอัปเดตทะเบียน (ดู `VERIFICATION.md`) · T11 family sync ของ shell 0.6.3 (เจ้าของอนุมัติ 18 พ.ย. 2569 “ทำเลย” · รุ่น 0.1.3 ส่งไบต์สุดท้ายของ 0.6.3)
+T1 อ่านไฟล์ส่งออก (`scripts/xlsx-to-csv.py`) · T2 จับคู่หมุดกับกรอบ OSM (`scripts/match-extents.py`) · T3 สร้างข้อมูลและตรวจยอดกับ production (`scripts/build-data.py`) · T4 model ข้อค้นพบ และการค้นหา · T5 แผนที่ (ชิปอำเภอ กรอบและอาคารในกรอบ) · T6 แผง กราฟ ตาราง · T7 ภาษาอังกฤษ · T8 shell 0.6.3 · T9 เอกสาร handoff release · T10 เผยแพร่ ตรวจ live และอัปเดตทะเบียน (ดู `VERIFICATION.md`) · T11 family sync ของ shell 0.6.3 (เจ้าของอนุมัติ 18 พ.ย. 2569 “ทำเลย” · ขึ้น citymeter.pages.dev แล้ว 18 จาก 18 demo)
 
 ## Acceptance criteria
 
@@ -30,4 +30,4 @@ A1–A18 ใน `implementation-plan.json` — unit tests บนข้อมู�
 
 ## Backlog
 
-หน่วยอาคาร CityMETER รอบ 72 หมุด (12 กรอบ) ที่อยู่นอกหน่วยที่ประเมินแล้ว · คู่ที่ทีมวิจัยพักไว้ 321 คู่ และยอดแปลงที่พักไว้ 13 รายการ · หมุดของ 58 โครงการที่มีแต่ลิงก์ Google Maps · ชื่ออังกฤษของโครงการและแบรนด์ในชีตวิจัย · demo อื่น hub และระบบเผยแพร่รับ citymeter-shell 0.6.3 · ประกาศชนิด `e` และ `n` ของชุดข้อมูลนี้ในทะเบียน
+หน่วยอาคาร CityMETER รอบ 72 หมุด (12 กรอบ) ที่อยู่นอกหน่วยที่ประเมินแล้ว · คู่ที่ทีมวิจัยพักไว้ 321 คู่ และยอดแปลงที่พักไว้ 13 รายการ · หมุดของ 58 โครงการที่มีแต่ลิงก์ Google Maps · ชื่ออังกฤษของโครงการและแบรนด์ในชีตวิจัย · ประกาศชนิด `e` และ `n` ของชุดข้อมูลนี้ในทะเบียน

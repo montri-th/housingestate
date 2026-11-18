@@ -1,11 +1,21 @@
 # CityMETER Housing Estate — verification
 
+## Release 0.1.4 — 18 พ.ย. 2569
+
+From the English walk of 0.1.3 on citymeter.pages.dev: `window.__citymeterI18n.missing` held the accessible names of every map chip — the 77 province chips at load and the 47 district chips of Bangkok once it was chosen (“เขตวัฒนา · 254 แปลง · 11 รายการ กดเพื่อดูเขตหรืออำเภอ”: the chip's title, then its verb). Every other view of the walk (district, record, project, company, charts, table) added nothing.
+
+- Fix (`js/lang-en.js`): the last part of a chip's label, a measure and its verb, reads “…, select to view the province” or “…, select to view the district”; the parts before it already read in English. A district the area index has no English for (Wiang Kao, Khon Kaen, 4029) keeps its Thai name (`js/lang.js`, keepThai).
+- Test (`tests/lang-en.test.js`): every province and district chip of the area index, either measure first, reads with no Thai left but that one name (2,010 labels stayed Thai before the fix).
+- Local: 167 tests pass.
+
 ## Release 0.1.3 — 18 พ.ย. 2569
 
 The family sync of citymeter-shell 0.6.3 (owner 2026-11-18, VERBATIM: “ทำเลย”): every demo, the hub and the Pages deploy take the bytes this release carries.
 
 - Change: the note at the head of `js/shell/datasets.js` reads the dataset registry R01_DATASETS of 2026-11-18 (every demo in the group it had on 2026-11-12; Commercial District has its row since, `research.TH.commercialdistrict`, Location). No entry changes. `js/shell/manifest.json` names the new hash (`d2555aaf…7f663d`); `tests/shell.test.js` is the test every repository takes with it.
 - Local: 166 tests pass.
+- Live: GitHub Pages served the same `js/shell/datasets.js` bytes (`d2555aaf…7f663d`, shell 0.6.3) on all 18 demo paths and the hub listed 18 (`demos/demos.json`). citymeter.pages.dev run 44263310538 (workflow_dispatch, deploy @046a7d7, hub @b5132cb): the live family check found every demo on 0.6.3 with 18 entries in its picker, none missing, none extra, no group different; 114 of 114 live checks passed.
+- Walk on citymeter.pages.dev (the owner's Chrome, desktop): from Hotel in Thai the picker lists Housing Estate under Land and opens `/housingestate/` with `at=BKK/D/1039` (Watthana, 254 plots, 11 records); from Pharmacy in English it is listed under Land without “In Thai” and opens in English with `lang=en` and the same `at`.
 
 ## Release 0.1.2 — 18 พ.ย. 2569
 
