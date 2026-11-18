@@ -1,5 +1,12 @@
 # CityMETER Housing Estate — verification
 
+## Release 0.1.3 — 18 พ.ย. 2569
+
+The family sync of citymeter-shell 0.6.3 (owner 2026-11-18, VERBATIM: “ทำเลย”): every demo, the hub and the Pages deploy take the bytes this release carries.
+
+- Change: the note at the head of `js/shell/datasets.js` reads the dataset registry R01_DATASETS of 2026-11-18 (every demo in the group it had on 2026-11-12; Commercial District has its row since, `research.TH.commercialdistrict`, Location). No entry changes. `js/shell/manifest.json` names the new hash (`d2555aaf…7f663d`); `tests/shell.test.js` is the test every repository takes with it.
+- Local: 166 tests pass.
+
 ## Release 0.1.2 — 18 พ.ย. 2569
 
 From the phone check of 0.1.1 (the owner's Chrome, a 390 × 740 frame of the same origin, `?lean=phone`): Supalai Ville Wongwaen–Lamlukka Khlong 7 opened in 3D at zoom 14 with OSM chosen in its extent (30 OSM buildings in the loaded tiles) but none lit — the fit's pitched shift left the estate's middle about 900 m below the middle of the free map, the point the lean ring is drawn round (`viewCenter`), so its buildings were never shaped. Chiang Mai in English: no district chip at the province fit (zoom 6.68; chips started at 7).

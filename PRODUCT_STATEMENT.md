@@ -8,8 +8,8 @@ Winning strategy ของชุดข้อมูลนี้ เขียน�
 |---|---|
 | Parent product | CityMETER (City Intelligence Base Layer ของ Landometer) · ทะเบียนกลาง `research.TH.housing_estate` · กลุ่ม Land (`R01_DATASETS.dataset_group`) · ชั้นข้อมูล production `?d=estate` |
 | Feature / dataset | Housing Estate — แปลงจัดสรรตามรายการจัดสรรที่ดินของกรมที่ดิน รายจังหวัดและอำเภอ (ชุดเดียวกับ CityMETER production) และโครงการในบัญชีของผู้พัฒนาที่ทีมวิจัยเก็บ พร้อมหมุด กรอบพื้นที่ ป้ายและราคาเริ่มตามหน้าเว็บ นิติบุคคลตามหลักฐาน รายงานของบริษัท และบริบทรถไฟฟ้า |
-| รุ่นเอกสาร | 0.1.2 · 18 พฤศจิกายน 2569 |
-| สถานะ | Public demo รุ่น 0.1.2 บน GitHub Pages (`https://montri-th.github.io/housingestate/`, ไทยและ English) · ชุดข้อมูลเป็นงานวิจัยบน snapshot ของ production ไม่ใช่ทะเบียนทางการของกรมที่ดิน หรือสำมะโนหมู่บ้าน |
+| รุ่นเอกสาร | 0.1.3 · 18 พฤศจิกายน 2569 |
+| สถานะ | Public demo รุ่น 0.1.3 บน GitHub Pages (`https://montri-th.github.io/housingestate/`, ไทยและ English) · ชุดข้อมูลเป็นงานวิจัยบน snapshot ของ production ไม่ใช่ทะเบียนทางการของกรมที่ดิน หรือสำมะโนหมู่บ้าน |
 | ผู้รับผิดชอบ | Landometer · CityMETER (owner: Montri) |
 | คำขอ | **Owner-stated** 18 พ.ย. 2569: “จากที่เราทำ demo ของ CityMETER: University มาแล้ว … ขอให้ทำแบบเดียวกันให้กับ CityMETER: Housing estate แล้ว publish ที่ https://github.com/montri-th/housingestate · ดูเรื่อง ขอบเขต campus ให้แสดงผลในลักษณะเดียวกับ University นะ · … ซึ่งมีทั้งข้อมูล master ใน repo และโครงการใหม่ที่ research เพิ่ม ให้แสดงบน web demo ให้มากที่สุด” (`AGENTS.md`) |
 | ผู้ใช้หลัก | ทีมพัฒนาโครงการแนวราบที่หาทำเล · เจ้าของที่ดินและนักลงทุนที่ประเมินแปลง · ผู้ประเมินมูลค่าและสถาบันการเงิน · ผู้ประกอบการค้าปลีกและบริการที่ตามชุมชนบ้านจัดสรร (**Hypothesis** §7) |

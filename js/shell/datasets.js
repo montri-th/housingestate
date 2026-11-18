@@ -1,7 +1,8 @@
 /**
  * citymeter-shell · the CityMETER demos, for the dataset picker in the header (js/shell/header.js).
  *
- * Group and address per the dataset registry, R01_DATASETS (`dataset_group`, `demo_web_url`), read 2026-11-12.
+ * Group and address per the dataset registry, R01_DATASETS (`dataset_group`, `demo_web_url`), read 2026-11-18: every demo
+ * reads the group it had on 2026-11-12, and the two that joined since have their rows (below).
  * Hospital and School are Living since the owner's decision of 2026-11-12 (registry change
  * CHANGE-LIVING-HEALTH-EDUCATION-20261112-01, `group_basis` owner_2026-11-12_basic_service_access_and_coverage: access to
  * care and to education, and how far basic services reach, read as quality of life); they were Location in the reading
@@ -9,7 +10,7 @@
  * its demo (registry research.TH.university, montri-th/university) joined in 0.6.1, 2026-11-12. Commercial District
  * (the central neighbourhood registry against the 16 demos, montri-th/commercialdistrict) joined in 0.6.2, 2026-11-16,
  * in Location by the owner's request of that day (“publish เป็นส่วนต่อเนื่องกับ https://citymeter.pages.dev/ ในหมวด
- * Location”); the dataset registry has no row for it yet. Housing Estate (registry research.TH.housing_estate, group Land;
+ * Location”); the registry carries it since as research.TH.commercialdistrict, Location (read 2026-11-18). Housing Estate (registry research.TH.housing_estate, group Land;
  * montri-th/housingestate) joined in 0.6.3, 2026-11-18. Factory's demo address
  * was added to the registry on 2026-11-08. Industrial Estate (registry
  * research.TH.industrial_estates, group Land) lives inside the Factory repository: `pages` is its path on GitHub Pages

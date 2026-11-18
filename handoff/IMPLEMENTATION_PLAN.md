@@ -1,4 +1,4 @@
-# CityMETER Housing Estate — Implementation Plan (0.1.2)
+# CityMETER Housing Estate — Implementation Plan (0.1.3)
 
 คู่กับ `implementation-plan.json` (เครื่องตรวจ)
 
@@ -22,7 +22,7 @@ Static site บน GitHub Pages — ES modules ผ่าน import map (ทุ�
 
 ## งาน
 
-T1 อ่านไฟล์ส่งออก (`scripts/xlsx-to-csv.py`) · T2 จับคู่หมุดกับกรอบ OSM (`scripts/match-extents.py`) · T3 สร้างข้อมูลและตรวจยอดกับ production (`scripts/build-data.py`) · T4 model ข้อค้นพบ และการค้นหา · T5 แผนที่ (ชิปอำเภอ กรอบและอาคารในกรอบ) · T6 แผง กราฟ ตาราง · T7 ภาษาอังกฤษ · T8 shell 0.6.3 · T9 เอกสาร handoff release · T10 เผยแพร่ ตรวจ live และอัปเดตทะเบียน (ดู `VERIFICATION.md`) · T11 family sync ของ shell 0.6.3 (รออนุมัติเจ้าของครั้งเดียว)
+T1 อ่านไฟล์ส่งออก (`scripts/xlsx-to-csv.py`) · T2 จับคู่หมุดกับกรอบ OSM (`scripts/match-extents.py`) · T3 สร้างข้อมูลและตรวจยอดกับ production (`scripts/build-data.py`) · T4 model ข้อค้นพบ และการค้นหา · T5 แผนที่ (ชิปอำเภอ กรอบและอาคารในกรอบ) · T6 แผง กราฟ ตาราง · T7 ภาษาอังกฤษ · T8 shell 0.6.3 · T9 เอกสาร handoff release · T10 เผยแพร่ ตรวจ live และอัปเดตทะเบียน (ดู `VERIFICATION.md`) · T11 family sync ของ shell 0.6.3 (เจ้าของอนุมัติ 18 พ.ย. 2569 “ทำเลย” · รุ่น 0.1.3 ส่งไบต์สุดท้ายของ 0.6.3)
 
 ## Acceptance criteria
 
