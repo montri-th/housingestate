@@ -6,7 +6,11 @@ From the phone check of 0.1.1 (the owner's Chrome, a 390 × 740 frame of the sam
 
 - Fixes: on a phone a project opens with the middle of its extent at the middle of the free map above the sheet (`js/app.js#fitSite`); district chips from zoom 6 (the largest first, never overlapping, only in the chosen province).
 - Then (cache tag r4): province chips were laid out before the district chips in the same frame and covered them (Mae Hong Son over Mae Taeng, Chiang Mai over Mueang Chiang Mai at 390 px): the district chips are laid out first, the province chips keep clear of them.
-- Local: 166 tests pass. Live results follow below once published.
+- Local: 166 tests pass.
+- Live (GitHub Pages, cache tag r4; the owner's Chrome, real basemap, frames of the same origin):
+  - Phone 390 × 740, `?lean=phone`: Supalai Ville Wongwaen–Lamlukka Khlong 7 opens in 3D (pitch 60, zoom 14.46), OSM chosen in its extent (122 OSM, 0 V4), 130 buildings lit; Bangkok in Thai — 5 chips, none over another; Chiang Mai in English — 8 chips (6 districts and 2 neighbouring provinces), none over another; no horizontal scroll.
+  - Desktop in English: Baan Klang Muang The Edition — 92 buildings lit, the legend “Buildings in the project extent”, `__citymeterI18n.missing` empty; project names stay Thai as the data carries them.
+  - `npm run verify:live` on the commit that adds this record: see the line below.
 
 ## Release 0.1.1 — 18 พ.ย. 2569
 
