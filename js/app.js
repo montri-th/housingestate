@@ -995,6 +995,7 @@ function syncBottomPanel() {
   state.pins?.layout();
   state.siteLabels?.layout();
   state.districtLabels?.layout();
+  state.provinceLabels?.layout();
 }
 
 /* ---------- table ---------- */
@@ -1204,7 +1205,7 @@ function districtLabelItems() {
 
 function scheduleLabelView() {
   clearTimeout(scheduleLabelView.timer);
-  scheduleLabelView.timer = setTimeout(() => { if (state.loaded) { state.provinceLabels?.layout(); state.districtLabels?.layout(); renderLegend(); syncExtents(); } }, 60);
+  scheduleLabelView.timer = setTimeout(() => { if (state.loaded) { state.districtLabels?.layout(); state.provinceLabels?.layout(); renderLegend(); syncExtents(); } }, 60);
 }
 
 /**
@@ -1293,8 +1294,10 @@ function updateSpatialLayers() {
   state.terrain?.setEnabled(state.view3d && state.budget.terrain);
   const code = $('province').value;
   state.provinceLayers?.update({units: state.unitNational, selectedCode: code, focus: state.focusIds, visible: state.showAreas, metric: state.metric});
-  state.provinceLabels?.update(state.showAreas ? provinceLabelItems() : [], {visible: state.showAreas});
+  // District chips first: the province chips keep clear of them (their layout reads the district chips' places), and
+  // each layout runs in the frame order it was asked in (0.1.2, Chiang Mai at 390 px: province chips over districts).
   state.districtLabels?.update(districtLabelItems(), {visible: state.showAreas});
+  state.provinceLabels?.update(state.showAreas ? provinceLabelItems() : [], {visible: state.showAreas});
   renderLegend();
   const st = state.panel.mode === 'station' ? stationById(state.panel.id) : null;
   state.stations?.select(st ? st.id : '', STATION_RADIUS_M);

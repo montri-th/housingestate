@@ -5,6 +5,7 @@
 From the phone check of 0.1.1 (the owner's Chrome, a 390 × 740 frame of the same origin, `?lean=phone`): Supalai Ville Wongwaen–Lamlukka Khlong 7 opened in 3D at zoom 14 with OSM chosen in its extent (30 OSM buildings in the loaded tiles) but none lit — the fit's pitched shift left the estate's middle about 900 m below the middle of the free map, the point the lean ring is drawn round (`viewCenter`), so its buildings were never shaped. Chiang Mai in English: no district chip at the province fit (zoom 6.68; chips started at 7).
 
 - Fixes: on a phone a project opens with the middle of its extent at the middle of the free map above the sheet (`js/app.js#fitSite`); district chips from zoom 6 (the largest first, never overlapping, only in the chosen province).
+- Then (cache tag r4): province chips were laid out before the district chips in the same frame and covered them (Mae Hong Son over Mae Taeng, Chiang Mai over Mueang Chiang Mai at 390 px): the district chips are laid out first, the province chips keep clear of them.
 - Local: 166 tests pass. Live results follow below once published.
 
 ## Release 0.1.1 — 18 พ.ย. 2569
