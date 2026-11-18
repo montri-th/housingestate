@@ -1,6 +1,6 @@
 # CityMETER Housing Estate — data method
 
-What the numbers on the page are, where they come from, how they were built and what they are not. Release 0.2.0,
+What the numbers on the page are, where they come from, how they were built and what they are not. Release 0.3.0,
 data read 18 November 2026 (`meta.readOn`). Every figure below is a fixture of this snapshot (tests), never a UI
 constant: the page computes it from the data.
 
@@ -56,9 +56,36 @@ Owner 2026-11-18 15:28, VERBATIM: “ทำไมไม่มีหมู่บ�
   from zoom 9.5; the plot type and the finder narrow the marks as they narrow the table; the chosen province's marks
   are in the focus style, the others quiet.
 - **An open record** is framed on its point in the model preset, the buildings round it drawn as round a project
-  (§6, `js/regions.js`). It lights the drawn buildings in the extent of a project the research team paired with it
-  (§6), when one has an extent. A record's own extent — a spatial join of its point with OpenStreetMap residential areas
-  — is not built yet.
+  (§6, `js/regions.js`), and lights the drawn buildings in its extent (§2b), else in the extent of a project the
+  research team paired with it (§6).
+
+## 2b. A record's extent (release 0.3.0)
+
+Owner 2026-11-18 15:28, VERBATIM: “แล้วก็ไม่เห็น จะ spatial join กับขอบเขต campus ของแต่ละหมู่บ้านจัดสรร ซึ่งต้อง highlight
+อาคาร 3d building mass ทุกอาคารภายในขอบเขตนั้น เหมือนที่ขอให้ทำเหมือนกับ university เลย”; 16:40, with the extract:
+“file OSM ล่าสุดอยู่นี่”.
+
+- **Source.** The owner's OpenStreetMap extract of Thailand (Geofabrik `thailand-latest.osm.pbf`, OSM base 2026-11-12
+  21:23 UTC, 330,174,243 bytes, SHA-256 `92cd031a…034c`; `data/record-extents.json` `meta.extract`), read with pyosmium
+  by `scripts/match-record-extents.py`: closed ways and multipolygons tagged `landuse=residential`, `landuse=construction`
+  or `place=neighbourhood|quarter`, of 2,000 m² – 3 km² — 32,214 areas. ODbL-1.0, © OpenStreetMap contributors.
+- **The join.** A record's production point (§2a) is looked up in the areas that hold it or lie within 30 m of it. An
+  area becomes the record's extent when it carries the record's name (a name score of 0.86 or more, or one whole name of
+  six letters or more holding the other, the words every estate shares set aside, numbers never differing) — the
+  smallest such area that holds the point, else the nearest within 30 m — or, without a name, when it is the smallest
+  area holding the point, every record it holds is one estate, their plots fit it (80 – 650 m² of area per plot: the
+  5th–90th percentile of the 1,512 areas their own name confirms) and, where the DOL page states the allocated land
+  (5,215 records the research team read, a check never copied), the area is 0.2 – 4 times it.
+- **What it gives.** 2,694 records take an extent (2,377 by name, 317 by size) in 1,992 areas; 10 more light a paired
+  project's. Refused: 1,560 records whose area carries another estate's name, 446 whose area shares only the road or
+  district words of its name, 333 records of one estate whose plots do not fit an unnamed area, 1,162 in an unnamed area
+  of several estates or at a point production gave several estates. For the 49 pairs where both the record and its
+  paired project have an extent, both are the same OpenStreetMap area.
+- **Projects.** A project without an extent of its own takes the extent of a record the research team paired with it
+  (63 projects; 202 projects now have an extent).
+- **The page** draws the open record's extent in the selection stroke, lights the drawn buildings in it as for a project
+  (§6) and says “กรอบราว N ไร่”; OpenStreetMap joins the provenance line. An extent is a picture of where the estate is,
+  never a deed, a legal boundary or a land size.
 
 ## 3. The measure
 
@@ -150,6 +177,7 @@ python3 -I scripts/build-data.py --tabs <tabs-dir> --xlsx <export.xlsx> --index 
   --production <receipts-dir> --osm-match <match.json> --osm-geom <geom.txt> --osm-geom-sha <sha256> --out data
 python3 -I scripts/fetch-record-points.py --out <points-dir>          # production's point of every record (§2a)
 python3 -I scripts/build-record-points.py --fetched <points-dir>      # → data/record-points.json
+python3 -I scripts/match-record-extents.py --pbf <thailand.osm.pbf> --tabs <tabs-dir>   # → data/record-extents.json (§2b)
 npm test
 ```
 

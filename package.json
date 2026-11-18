@@ -1,6 +1,6 @@
 {
   "name": "citymeter-housingestate",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "description": "CityMETER · Housing Estate — 3D map of the allocated plots the DOL website allocation records report per district and province (the CityMETER production estate layer), with the housing estate projects the research team collected: pins, OpenStreetMap extents with their buildings lit, labels, prices, launches, legal entities, paired records and rail context",

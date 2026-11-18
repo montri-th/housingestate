@@ -139,12 +139,13 @@ export function buildDistrictProfile(unit, {data, records = null, metric = 'plot
 }
 
 /** A DOL record: its plots by type, its district row and the projects the research team paired with it. */
-export function buildRecordProfile(record, {data, atPoint = [], pointsMeta = null}) {
+export function buildRecordProfile(record, {data, atPoint = [], pointsMeta = null, extent = null}) {
   const unit = record.unit || data.units.find(u => u.id === record.district) || null;
   const types = PLOT_TYPES.map((t, i) => ({...t, index: i, value: record.types?.[i] || 0}));
   // The point production draws for the record (data/record-points.json, 0.2.0) and the other records it put there.
   const point = Number.isFinite(record.lon) && Number.isFinite(record.lat) ? [record.lon, record.lat] : null;
-  return {record, unit, types, pairs: record.pairs, point, atPoint: point ? atPoint : [], pointsMeta};
+  // The extent the open record lights (its own OpenStreetMap area, else a paired project's; js/app.js#subjectExtent).
+  return {record, unit, types, pairs: record.pairs, point, atPoint: point ? atPoint : [], pointsMeta, extent};
 }
 
 /** The projects whose point lies within `radius` of a station (straight line), nearest first. */

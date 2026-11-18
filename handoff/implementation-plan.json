@@ -2,7 +2,7 @@
   "$schema": "./handoff.schema.json",
   "schemaVersion": "1.5.0",
   "productId": "citymeter-housingestate",
-  "productVersion": "0.2.0",
+  "productVersion": "0.3.0",
   "updatedOn": "2026-11-18",
   "documentType": "implementation-plan",
   "architecture": {
@@ -334,11 +334,14 @@
         "A19"
       ],
       "files": [
-        "scripts/match-extents.py",
-        "data/extents.json",
-        "js/app.js"
+        "scripts/match-record-extents.py",
+        "data/record-extents.json",
+        "js/extents.js",
+        "js/app.js",
+        "js/panel.js",
+        "js/profile-model.js"
       ],
-      "status": "pending: OpenStreetMap is out of reach of the build workspace; needs the owner’s choice of route (his Mac downloads the Geofabrik extract, or Overpass from his Chrome)"
+      "status": "done in 0.3.0 (the owner’s OSM extract of 2026-11-12): 2,694 records take an extent, 63 projects take a paired record’s"
     }
   ],
   "acceptanceCriteria": [
@@ -455,6 +458,12 @@
       "scenario": "records on the map",
       "expected": "every record at the point production draws for it, in the order of data/records.json and inside its district; one mark per point with the count of its records; an open record names every other record at its point and is framed on its point",
       "verificationType": "node --test tests/record-points.test.js tests/views.test.js + live walk"
+    },
+    {
+      "id": "A20",
+      "scenario": "a record’s extent",
+      "expected": "each record extent holds its production point (or carries its name within 30 m); an area named for another estate never lit; where a paired project has an extent both are the same OSM area; the open record lights the buildings in it",
+      "verificationType": "node --test tests/record-extents.test.js tests/views.test.js + live walk"
     }
   ],
   "developerWorkflow": [
@@ -496,9 +505,9 @@
       "evidence": "AGENTS.md (shell)"
     },
     {
-      "id": "B7",
-      "item": "Record extents from OpenStreetMap (spatial join of the production points with residential areas, area and name checks), then the buildings of an open record lit in its own extent",
-      "evidence": "DATA_METHOD.md §2a; task T13"
+      "id": "B8",
+      "item": "Rerun scripts/match-record-extents.py on each newer OpenStreetMap extract (estates are mapped every week); the rules stay",
+      "evidence": "DATA_METHOD.md §2b"
     }
   ]
 }

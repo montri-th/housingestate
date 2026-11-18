@@ -2,7 +2,7 @@
   "$schema": "./handoff.schema.json",
   "schemaVersion": "1.5.0",
   "productId": "citymeter-housingestate",
-  "productVersion": "0.2.0",
+  "productVersion": "0.3.0",
   "updatedOn": "2026-11-18",
   "documentType": "product-brief",
   "datasetCheckedOn": "2026-11-18",
@@ -132,7 +132,7 @@
       "project": "model preset on the extent; the drawn buildings in the extent lit (map.activeLayer); extents of the other projects dashed",
       "building": "two-point camera; x-ray of the building looked at",
       "station": "1 km radius, projects within it",
-      "record": "model preset on the production point of the record (data/record-points.json); its buildings round it as round a project; a paired project’s extent lit; the other records at its point named in the panel"
+      "record": "model preset on the production point of the record and its extent (data/record-extents.json, else a paired project’s); the drawn buildings in the extent lit (map.activeLayer); the other records at its point named in the panel"
     },
     "choropleth": "province fill to zoom 10.5 (li.supply | count, 41 samples); measured zero = outline",
     "records": "every record at the point CityMETER production draws for it, from zoom 9.5: one neutral bullseye per point with the count of its records (never a house-type cue); the chosen province’s marks in the focus style, the others quiet; the plot type and the finder narrow them (owner 2026-11-18: “ทำไมไม่มีหมู่บ้านใน production ที่ทำไว้แล้ว มี coordinate น่าจะครบแล้ว”)"
@@ -257,7 +257,7 @@
     "phoneSheet": "peek · half · full below 761 px in portrait"
   },
   "data": {
-    "file": "data/estates.json + data/extents.json + data/portfolio.json + data/records.json + data/record-points.json",
+    "file": "data/estates.json + data/extents.json + data/portfolio.json + data/records.json + data/record-points.json + data/record-extents.json",
     "counts": {
       "records": 19753,
       "plots": 2689640,
@@ -275,7 +275,9 @@
       "issuerFacts": 201,
       "events": 175,
       "stations": 301,
-      "recordPoints": 10987
+      "recordPoints": 10987,
+      "recordExtents": 2694,
+      "recordExtentAreas": 1992
     },
     "checks": "meta.checks (plot types add up; province coverage equal; production lv0 equal)",
     "registryId": "research.TH.housing_estate",
@@ -284,7 +286,7 @@
     "readOn": "2026-11-18",
     "builtOn": "2026-11-18",
     "method": "DATA_METHOD.md",
-    "build": "scripts/xlsx-to-csv.py → scripts/match-extents.py → scripts/build-data.py; scripts/fetch-record-points.py → scripts/build-record-points.py"
+    "build": "scripts/xlsx-to-csv.py → scripts/match-extents.py → scripts/build-data.py; scripts/fetch-record-points.py → scripts/build-record-points.py; scripts/match-record-extents.py (OpenStreetMap extract)"
   },
   "englishContract": {
     "module": "js/lang.js + js/lang-en.js (citymeter-shell i18n)",
@@ -387,6 +389,6 @@
     "site": "GitHub Pages from main /root",
     "handoff": "dist/CityMETER-Housing-Estate-Developer-Handoff.zip (START_HERE.md, RELEASE_RECEIPT.json, evidence/, source/)",
     "liveCheck": "npm run verify:live",
-    "cacheTag": "?v=20261118-r7 on every entry file and, through the import map in index.html, on every ES module; the optional data files take the same tag from import.meta.url; bump it with package.json version (tests/release.test.js); icon fonts inside the stylesheets carry ?v=<first 8 hex of their SHA-256> (tests/icons.test.js)"
+    "cacheTag": "?v=20261118-r8 on every entry file and, through the import map in index.html, on every ES module; the optional data files take the same tag from import.meta.url; bump it with package.json version (tests/release.test.js); icon fonts inside the stylesheets carry ?v=<first 8 hex of their SHA-256> (tests/icons.test.js)"
   }
 }

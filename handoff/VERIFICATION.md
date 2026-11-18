@@ -1,5 +1,15 @@
 # CityMETER Housing Estate — verification
 
+## Release 0.3.0 — 18 พ.ย. 2569
+
+Owner 2026-11-18 15:28, VERBATIM: “แล้วก็ไม่เห็น จะ spatial join กับขอบเขต campus ของแต่ละหมู่บ้านจัดสรร ซึ่งต้อง highlight อาคาร 3d building mass ทุกอาคารภายในขอบเขตนั้น เหมือนที่ขอให้ทำเหมือนกับ university เลย”; 16:40, the owner's extract: “file OSM ล่าสุดอยู่นี่”.
+
+- Data: `scripts/match-record-extents.py` on the owner's `thailand-latest.osm.pbf` (OSM base 2026-11-12 21:23 UTC, SHA-256 `92cd031a…034c`): 32,214 residential, construction and neighbourhood areas of 2,000 m² – 3 km²; 2,694 records take an extent (2,377 by name, 317 by size) in 1,992 areas → `data/record-extents.json` (1.2 MB). All 139 project extents are in the extract.
+- Rules tuned on what the first runs showed: a name that shares only road or district words is refused (ลัดดารมย์ ราชพฤกษ์-รัตนาธิเบศร์ had held เดอะทรัสต์ ราชพฤกษ์-รัตนาธิเบศร์); a script's part alone never holds a name (“JSP City @ แพรกษา” had matched เสนา วิลเลจ สุขุมวิท-แพรกษา); an area named for the record wins within 30 m over the neighbour's unnamed area that holds the point (ศุภาลัย เบลล่า บ้านสวน-เศรษฐกิจ: its point stands 9 m outside its own); unnamed areas only at 80–650 m² per plot (the 5th–90th percentile of the 1,512 areas their name confirms).
+- Check: for the 49 pairs where both the record and its paired project have an extent, both are the same OpenStreetMap area. The project of the owner's screenshot (บ้านกลางเมือง CLASSE รัชดา - ลาดพร้าว) stands in no OSM residential area (the nearest, 392,405 m², is 225 m away): it keeps its pin alone.
+- Page: an open record draws its extent in the selection stroke and lights the drawn buildings in it; its panel says “กรอบราว N ไร่”; a project without its own extent takes its paired record's (63 projects); OpenStreetMap joins the provenance.
+- Local: 175 tests pass. Headless Chrome (no basemap there): a record with its own extent shows OpenStreetMap in its provenance.
+
 ## Release 0.2.0 — 18 พ.ย. 2569
 
 Owner 2026-11-18 15:28 (on citymeter.pages.dev), VERBATIM: “ทำไมไม่มีหมู่บ้านใน production ที่ทำไว้แล้ว มี coordinate น่าจะครบแล้ว”.

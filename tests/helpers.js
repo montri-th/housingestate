@@ -5,7 +5,7 @@ import {fileURLToPath} from 'node:url';
 import {dirname, join} from 'node:path';
 import {decodeDataset, decodeRecords, setProvinces} from '../js/model.js';
 import {buildAreaIndex} from '../js/areas.js';
-import {decodeExtents} from '../js/extents.js';
+import {decodeExtents, decodeRecordExtents} from '../js/extents.js';
 import {decodeRecordPoints} from '../js/record-points.js';
 
 export const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -30,8 +30,10 @@ export function load() {
     const points = decodeRecordPoints(pointsRaw, records);
     const extentsRaw = readJSON('data/extents.json');
     const extents = decodeExtents(extentsRaw);
+    const recordExtentsRaw = readJSON('data/record-extents.json');
+    const recordExtents = decodeRecordExtents(recordExtentsRaw);
     const portfolio = readJSON('data/portfolio.json');
-    loaded = {raw, data, index, indexJSON, provincesGeo, recordsRaw, records, pointsRaw, points, extentsRaw, extents, portfolio};
+    loaded = {raw, data, index, indexJSON, provincesGeo, recordsRaw, records, pointsRaw, points, extentsRaw, extents, recordExtentsRaw, recordExtents, portfolio};
   }
   return loaded;
 }

@@ -61,7 +61,7 @@ import {extentPolygons, buildingsInExtent} from './extent-buildings.js';
 import {installTerrain, terrainFacts, terrainChips} from './shell/terrain.js';
 import {createCodec, createNavigator} from './shell/url.js';
 import {pageTitle} from './shell/title.js';
-import {decodeExtents, installExtentLayers, extentCollection} from './extents.js';
+import {decodeExtents, decodeRecordExtents, installExtentLayers, extentCollection} from './extents.js';
 import {decodeRecordPoints, installRecordPoints, pointCollection, recordsAtPoint} from './record-points.js';
 
 const $ = id => document.getElementById(id);
@@ -76,13 +76,16 @@ const mobilePortrait = () => matchMedia('(max-width: 760px) and (orientation: po
 /** Panel modes with an `e` item of their own (a district is an `at` level, a developer an `n` network). */
 const ITEM_MODES = ['site', 'record', 'station'];
 /** Optional files, loaded after the first paint or when a view needs them. */
-const LAZY = Object.freeze({extents: 'data/extents.json', portfolio: 'data/portfolio.json', records: 'data/records.json', points: 'data/record-points.json'});
+const LAZY = Object.freeze({extents: 'data/extents.json', portfolio: 'data/portfolio.json', records: 'data/records.json', points: 'data/record-points.json',
+  recordExtents: 'data/record-extents.json'});
 
 const state = {
   data: null, index: null, provincesGeo: null,
   // Optional files (LAZY): the decoded file, its promise while loading, and whether it failed.
   // points: the production point of every record (data/record-points.json, read once the records are in).
-  extents: null, portfolio: null, records: null, points: null, loading: {}, failed: {},
+  // recordExtents: the OpenStreetMap area each record takes (data/record-extents.json, 0.3.0; read when a record or a
+  // project without its own extent opens).
+  extents: null, portfolio: null, records: null, points: null, recordExtents: null, loading: {}, failed: {},
   unitNational: [], siteNational: [], unitScope: [], siteScope: [], recordScope: null, contextRows: [], insight: null, scopeKey: '',
   view: 'provinces', page: 0, metric: 'plots', stationById: new Map(), stationProfile: null, stations: null,
   autoFocus: true, focusIds: [], selectedId: '',
@@ -153,12 +156,29 @@ function recordSubject() {
 }
 /** What the map frames, shapes and lights: the open project (or the project of the open building), else the open record. */
 const mapSubject = () => openSite() || recordSubject();
-/** The extent of the map's subject (data/extents.json): a project's own, a record's paired project's; null when none. */
+/**
+ * The extent of the map's subject: a record's own (data/record-extents.json, 0.3.0), else a paired project's; a
+ * project's own (data/extents.json), else the own extent of a record paired with it (0.3.0). null when none.
+ */
 function subjectExtent(subject) {
-  if (!subject || !state.extents) return null;
-  const site = subject.kind === 'record' ? subject.extentSite : subject;
-  return site && site.extent >= 0 ? state.extents.byKey.get(site.id) || null : null;
+  if (!subject) return null;
+  if (subject.kind === 'record') {
+    const own = state.recordExtents?.byRecord.get(subject.id);
+    if (own) return own;
+    const site = subject.extentSite;
+    return site && state.extents ? state.extents.byKey.get(site.id) || null : null;
+  }
+  if (subject.extent >= 0) return state.extents?.byKey.get(subject.id) || null;
+  if (state.recordExtents && state.records) {
+    for (const {record} of state.records.bySite.get(subject.id) || []) {
+      const e = state.recordExtents.byRecord.get(record.id);
+      if (e) return e;
+    }
+  }
+  return null;
 }
+/** The map id of an extent that is not a project's own (an open record's, or one a project takes from a record). */
+const EXTRA_EXTENT = 2147483000;
 /**
  * A building of an open estate is looked at in two-point perspective (eye), framed to the free part of the map (the
  * Fitness / Shopping centers building camera, owner 2026-10-29: “อาคารที่เลือก หรือ on focus ให้แสดงด้วยมุมมอง 2-point
@@ -200,6 +220,7 @@ function applyTheme() {
 function disposeSpatial() {
   for (const k of ['siteLabels', 'terrain', 'xray', 'massing', 'pins', 'stations', 'extentLayers', 'recordLayer']) { try { state[k]?.dispose(); } catch (e) { console.warn('dispose', k, e); } state[k] = null; }
   state.provinceLayers = null; state.join = null; state.estateLit = null; refreshJoin.key = ''; syncFocusBuilding.key = ''; syncExtents.key = ''; syncRecordPoints.key = '';
+  syncExtents.extraOf = null;
 }
 
 /* ---------- selection ---------- */
@@ -325,6 +346,7 @@ function ensureFile(name) {
       if (name === 'extents') state.extents = decodeExtents(json);
       else if (name === 'portfolio') { if (!json?.projects) throw new Error('Invalid portfolio file'); state.portfolio = json; registerPortfolioNames(json); }
       else if (name === 'points') { if (!state.records) throw new Error('Records not loaded'); state.points = decodeRecordPoints(json, state.records); }
+      else if (name === 'recordExtents') state.recordExtents = decodeRecordExtents(json);
       else { state.records = decodeRecords(json, state.data); registerRecordNames(state.records); }
       state.loading[name] = null;
       onFileLoaded(name);
@@ -338,6 +360,7 @@ const ensurePortfolio = () => ensureFile('portfolio');
 const ensureRecords = () => ensureFile('records');
 /** The records' production points: read once the records are in (they attach to the records). */
 const ensurePoints = () => (state.records ? ensureFile('points') : ensureRecords().then(r => (r ? ensureFile('points') : null)));
+const ensureRecordExtents = () => ensureFile('recordExtents');
 
 /** What a file that arrived changes: the views that wait for it, the table, the extents on the map. */
 function onFileLoaded(name) {
@@ -355,6 +378,11 @@ function onFileLoaded(name) {
     if (state.loaded) { updateSpatialLayers(); if (mode === 'record' && !state.userCamera) fitMap(); }
     else renderLegend();
     if (mode === 'record') renderPanel();
+    return;
+  }
+  if (name === 'recordExtents') {
+    if (state.loaded) { updateSpatialLayers(); if (['site', 'record'].includes(mode) && !state.userCamera) fitMap(); }
+    if (['site', 'record', 'building'].includes(mode)) renderPanel();
     return;
   }
   if (name === 'extents' && state.loaded) { updateSpatialLayers(); if (['site', 'record'].includes(mode) && !state.userCamera) fitMap(); }
@@ -400,7 +428,7 @@ function renderPanel() {
   let html = '';
   if (mode === 'site') {
     const s = siteById(id);
-    html = s ? renderSite(buildSiteDetail(s, {data, portfolio: state.portfolio, records: state.records, extent: state.extents?.byKey.get(s.id) || null}), ctx) : '';
+    html = s ? renderSite(buildSiteDetail(s, {data, portfolio: state.portfolio, records: state.records, extent: subjectExtent(s)}), ctx) : '';
   } else if (mode === 'company') {
     const u = companyById(id);
     html = u ? renderCompany(buildCompanyProfile(u, {portfolio: state.portfolio, houseTypes: data.types}), ctx) : '';
@@ -409,7 +437,9 @@ function renderPanel() {
     html = u ? renderDistrict(buildDistrictProfile(u, {data, records: state.records, metric}), ctx) : '';
   } else if (mode === 'record') {
     const r = recordById(id);
-    html = r ? renderRecord(buildRecordProfile(r, {data, atPoint: recordsAtPoint(state.points, r), pointsMeta: state.points?.meta || null}), ctx) : state.records ? '' : waitingView('กำลังโหลดรายการจัดสรร', state.failed.records);
+    html = r ? renderRecord(buildRecordProfile(r, {data, atPoint: recordsAtPoint(state.points, r), pointsMeta: state.points?.meta || null,
+      extent: subjectExtent(recordSubject() || {kind: 'record', id: r.id, extentSite: r.pairs.map(p => p.site).find(x => x.extent >= 0) || null})}), ctx)
+      : state.records ? '' : waitingView('กำลังโหลดรายการจัดสรร', state.failed.records);
   } else if (mode === 'station') html = renderStation(state.stationProfile, ctx);
   else if (mode === 'building') {
     const b = state.buildingSel;
@@ -488,11 +518,16 @@ function goBack() {
 
 /** The optional files a view needs. */
 function ensureFor(mode) {
-  if (mode === 'site' || mode === 'building') { ensureExtents(); ensurePortfolio(); if (siteById(state.panel.id)?.pairs) ensureRecords(); }
+  if (mode === 'site' || mode === 'building') {
+    ensureExtents(); ensurePortfolio();
+    const s = siteById(state.panel.id);
+    // A project without an extent of its own may take one of its paired records' (0.3.0).
+    if (s?.pairs) { ensureRecords(); if (s.extent < 0) ensureRecordExtents(); }
+  }
   if (mode === 'company') ensurePortfolio();
   if (mode === 'unit' || mode === 'record') ensureRecords();
-  // An open record lights the buildings of a paired project's extent (0.2.0).
-  if (mode === 'record') ensureExtents();
+  // An open record lights the buildings of its own extent (0.3.0), else of a paired project's (0.2.0).
+  if (mode === 'record') { ensureExtents(); ensureRecordExtents(); }
 }
 
 /** A selection in another province moves the จังหวัด filter with it (the scope stays one coherent province). */
@@ -643,7 +678,7 @@ function refreshJoin() {
   if (!state.loaded) return false;
   const pieces = state.massing?.buildings() || [];
   const subject = mapSubject();
-  const key = `${state.massing?.version ?? 0}|${subject?.kind || ''}:${subject?.id || ''}|${state.extents ? 1 : 0}`;
+  const key = `${state.massing?.version ?? 0}|${subject?.kind || ''}:${subject?.id || ''}|${state.extents ? 1 : 0}${state.recordExtents ? 1 : 0}${state.records ? 1 : 0}`;
   if (key === refreshJoin.key && state.join) return false;
   refreshJoin.key = key;
   state.join = joinBuildings(pieces, [], []);
@@ -1316,9 +1351,10 @@ function followCamera() {
 function syncExtents() {
   if (!state.extentLayers || !state.extents) return;
   const sites = detailSites();
-  // The open project, or the project whose extent an open record takes (0.2.0).
+  // The open project, or the project whose extent an open record takes (0.2.0) when the record has none of its own.
   const subject = mapSubject();
-  const open = subject?.kind === 'record' ? subject.extentSite : subject;
+  const recordOwn = subject?.kind === 'record' ? state.recordExtents?.byRecord.get(subject.id) || null : null;
+  const open = subject?.kind === 'record' ? (recordOwn ? null : subject.extentSite) : subject;
   const list = open && !sites.includes(open) ? [...sites, open] : sites;
   const indexes = list.filter(s => s.extent >= 0).map(s => state.siteIndex.get(s.id)).filter(i => i >= 0);
   const key = indexes.join(',');
@@ -1327,6 +1363,18 @@ function syncExtents() {
     syncExtents.collection = extentCollection(state.extents, state.data.sites, indexes);
   }
   const openIndex = open ? state.siteIndex.get(open.id) : -1;
+  // An extent that is not a project's own (an open record's, or one a project takes from a paired record, 0.3.0) is
+  // drawn as one more feature, selected.
+  const own = subjectExtent(subject);
+  if (own && !(open && open.extent >= 0)) {
+    if (syncExtents.extraOf !== own || syncExtents.extraBase !== syncExtents.collection) {
+      syncExtents.extraOf = own; syncExtents.extraBase = syncExtents.collection;
+      syncExtents.extra = {type: 'FeatureCollection', features: [...syncExtents.collection.features,
+        {type: 'Feature', id: EXTRA_EXTENT, geometry: own.geometry, properties: {site: EXTRA_EXTENT, id: own.key}}]};
+    }
+    state.extentLayers.update({extents: syncExtents.extra, selectedSite: EXTRA_EXTENT});
+    return;
+  }
   state.extentLayers.update({extents: syncExtents.collection, selectedSite: open && open.extent >= 0 ? openIndex : -1});
 }
 
@@ -1416,7 +1464,7 @@ function onMapClick(e) {
   const at = state.recordLayer?.hitTest(point);
   if (at) { const list = state.points?.byKey.get(at) || []; if (list.length) selectRecord(list[0].id); return; }
   const estate = state.extentLayers?.hitTest(point);
-  if (estate >= 0) { const site = state.data.sites[estate]; if (site && site.id !== openSite()?.id) selectSite(site.id); return; }
+  if (estate >= 0 && estate !== EXTRA_EXTENT) { const site = state.data.sites[estate]; if (site && site.id !== openSite()?.id) selectSite(site.id); return; }
   if (!state.showAreas) return;
   const code = provinceAt(point);
   if (code && code !== $('province').value && state.map.getZoom() < PROVINCE_FILL_MAX_ZOOM + 1.5) selectProvince(code);
@@ -1433,7 +1481,7 @@ function onMapMove(e) {
     const pin = state.pins?.hitTest(p) || null;
     state.siteLabels?.hover(pin);
     let over = Boolean(pin) || Boolean(state.xray?.hitTest([p.x, p.y])) || Boolean(buildingTarget(p)) || Boolean(state.stations?.hitTest(p)) || Boolean(state.recordLayer?.hitTest(p));
-    if (!over) { const c = state.extentLayers?.hitTest(p); over = c >= 0 && state.data.sites[c]?.id !== openSite()?.id; }
+    if (!over) { const c = state.extentLayers?.hitTest(p); over = c >= 0 && c !== EXTRA_EXTENT && state.data.sites[c]?.id !== openSite()?.id; }
     if (!over && state.showAreas && map.getZoom() < PROVINCE_FILL_MAX_ZOOM + 1.5) { const code = provinceAt(p); over = Boolean(code) && code !== $('province').value; }
     map.getCanvas().style.cursor = over ? 'pointer' : '';
   });

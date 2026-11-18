@@ -32,6 +32,26 @@ export function decodeExtents(json) {
   return {meta: json.meta || {}, byKey};
 }
 
+/**
+ * Decode data/record-extents.json (0.3.0): the OpenStreetMap area each DOL record takes — the residential area that
+ * holds its production point (or lies within 30 m of it) and carries its name, or an unnamed area of its one estate
+ * whose plots fit it (scripts/match-record-extents.py). An area several records take is decoded once. Pure.
+ */
+export function decodeRecordExtents(json) {
+  if (!json?.areas || typeof json.areas !== 'object' || !json?.records || typeof json.records !== 'object') throw new Error('Invalid record extents file');
+  const areas = new Map();
+  for (const [osm, a] of Object.entries(json.areas)) {
+    if (!Array.isArray(a?.rings) || !a.rings.length) continue;
+    areas.set(osm, {key: osm, osm, tag: a.tag, name: a.name || '', m2: a.m2, geometry: {type: 'MultiPolygon', coordinates: a.rings}});
+  }
+  const byRecord = new Map();
+  for (const [id, pair] of Object.entries(json.records)) {
+    const a = Array.isArray(pair) ? areas.get(pair[0]) : null;
+    if (a) byRecord.set(id, {...a, how: pair[1] || ''});
+  }
+  return {meta: json.meta || {}, areas, byRecord};
+}
+
 /** GeoJSON of the extents of `siteIndexes` (index into data sites) that have one. */
 export function extentCollection(extents, sites, siteIndexes) {
   const features = [];

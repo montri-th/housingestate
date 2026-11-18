@@ -22,7 +22,7 @@ const text = html => html.replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').repla
 const nameOf = c => provinceByCode(c)?.th || c;
 
 function views() {
-  const {data, index, records, portfolio, extents, points} = load();
+  const {data, index, records, portfolio, extents, points, recordExtents} = load();
   const ctx = {meta: data.meta, portfolioMeta: portfolio.meta, unit: unitWords('plots'), index, osmDate: '2026-11-10'};
   const out = {};
   const national = buildOverview(data.units, data.sites, {houseTypes: data.types, allUnits: data.units, nameOf, stations: data.stations});
@@ -48,10 +48,16 @@ function views() {
   // A record at a point production shares with more records than the list shows at once (0.2.0).
   const shared = records.records.find(r => recordsAtPoint(points, r).length > 13 && r.name);
   out.recordShared = renderRecord(buildRecordProfile(shared, {data, atPoint: recordsAtPoint(points, shared), pointsMeta: points.meta}), ctx);
+  // A record with an extent of its own, and a project without one that takes its paired record's (0.3.0).
+  const framed = records.records.find(r => recordExtents.byRecord.has(r.id) && r.name);
+  out.recordExtent = renderRecord(buildRecordProfile(framed, {data, atPoint: recordsAtPoint(points, framed), pointsMeta: points.meta, extent: recordExtents.byRecord.get(framed.id)}), ctx);
+  const borrower = data.sites.find(s => s.extent < 0 && (records.bySite.get(s.id) || []).some(x => recordExtents.byRecord.has(x.record.id)));
+  const borrowed = recordExtents.byRecord.get((records.bySite.get(borrower.id) || []).find(x => recordExtents.byRecord.has(x.record.id)).record.id);
+  out.siteBorrowed = renderSite(buildSiteDetail(borrower, {data, portfolio, records, extent: borrowed}), ctx);
   const near = data.sites.find(s => s.rail);
   out.station = renderStation(buildStationProfile(near.rail.station, {sites: data.sites}), ctx);
   out.building = renderBuilding(buildBuildingProfile({key: 'osm:1', kind: 'osm', height: 9, site: paired}), ctx);
-  return {out, data, paired, plain, district, record, nameless, held, shared, records, points, ctx, index};
+  return {out, data, paired, plain, district, record, nameless, held, shared, framed, borrower, borrowed, records, points, ctx, index};
 }
 
 test('every panel view ends with one provenance line — dataset · source · date · boundary, then the method — and carries no caveat on screen', () => {
@@ -250,4 +256,14 @@ test('a record names its production point and every other record production put 
   assert.ok(plain.includes('จุดตาม CityMETER production'), 'a record with a point says where its point comes from');
   assert.ok(!plain.includes('รายการที่จุดเดียวกัน') && !plain.includes('จุดบนแผนที่'), 'no shared list and no points source without the points meta');
   assert.ok(Number.isFinite(record.lon) && Number.isFinite(record.lat), 'the loader attaches the point');
+});
+
+test('a record with its own extent and a project that takes its paired record\u2019s say “กรอบราว N ไร่” and credit OpenStreetMap (0.3.0)', () => {
+  const {out, borrowed} = views();
+  for (const name of ['recordExtent', 'siteBorrowed']) {
+    const t = text(out[name]);
+    assert.match(t, /กรอบราว [\d.,]+ ไร่/, `${name}: the extent's size`);
+    assert.ok(text(out[name].slice(out[name].indexOf('panel-foot provenance'))).includes('OpenStreetMap'), `${name}: OpenStreetMap in the provenance`);
+  }
+  assert.ok(text(out.siteBorrowed).includes(`กรอบราว ${(borrowed.m2 / 1600).toLocaleString('th-TH', {maximumFractionDigits: borrowed.m2 < 16000 ? 1 : 0})} ไร่`));
 });

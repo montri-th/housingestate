@@ -14,7 +14,7 @@ What one figure means:
 - allocator = named only when the name carries a legal-entity form.
 - distances = straight lines between reference points; not walking routes, travel times or catchments.
 
-Snapshot (release 0.2.0; fixtures, recompute from data):
+Snapshot (release 0.3.0; fixtures, recompute from data):
 - 46% of the allocated plots nationwide (1,236,824 of 2,689,640) are in Bangkok, Pathum Thani and Chon Buri; among house plots only, 47% (1,101,249 of 2,335,133).
 - Records: Bangkok 3,767, Chon Buri 2,849, Pathum Thani 1,294 — 40% of 19,753.
 - In Bangkok, 24% of the plots (127,566 of 539,167) are in Bang Khun Thian, Prawet and Sai Mai; in Chiang Mai, 66% in Mueang Chiang Mai, San Sai and San Kamphaeng.
@@ -25,4 +25,4 @@ Deep links (https://montri-th.github.io/housingestate/):
 - ?m=records — measure records instead of plots · ?f.type={detached|twin|row|commercial|land|other} · ?f.house={detached|semi_detached|townhouse|mixed_low_rise|low_rise_unspecified|shophouse|home_office} · ?f.search={text}
 - ?view={provinces|types|districts} — chart view · ?v3d=0 — plan view · ?lang=en — English
 
-Files: data/estates.json (first paint) · data/extents.json · data/portfolio.json · data/records.json (after the first paint) · data/record-points.json (each record at the point CityMETER production draws for it, after the records) · DATA_METHOD.md (method and limits) · PRODUCT_STATEMENT.md (Thai) · AGENTS.md (contract) · handoff/ (developer handoff)
+Files: data/estates.json (first paint) · data/extents.json · data/portfolio.json · data/records.json (after the first paint) · data/record-points.json (each record at the point CityMETER production draws for it, after the records) · data/record-extents.json (the OpenStreetMap area of 2,694 records, ODbL) · DATA_METHOD.md (method and limits) · PRODUCT_STATEMENT.md (Thai) · AGENTS.md (contract) · handoff/ (developer handoff)

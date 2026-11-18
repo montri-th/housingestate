@@ -383,8 +383,10 @@ export function renderSite(d, ctx = {}) {
   const placeChip = s.district && d.unit
     ? `<button type="button" class="fact-chip" data-action="select-unit" data-id="${esc(s.district)}" title="รายการจัดสรรใน${esc(districtName(area, s.province))}">${pic('area')}${esc(place)}</button>`
     : s.province ? `<button type="button" class="fact-chip" data-action="select-province" data-id="${esc(s.province)}">${pic('area')}${esc(place)}</button>` : '';
-  const extentChip = Number.isFinite(s.extentM2) && s.extentM2 > 0
-    ? `<span class="fact-chip" title="ขนาดกรอบพื้นที่โดยประมาณจาก OpenStreetMap ไม่ใช่โฉนดหรือแนวเขตตามกฎหมาย">${pic('area')}${nw(`กรอบราว ${rai(s.extentM2)} ไร่`)}</span>` : '';
+  // The project's own extent, else the one a record paired with it takes (0.3.0, js/app.js#subjectExtent).
+  const extentM2 = Number.isFinite(s.extentM2) && s.extentM2 > 0 ? s.extentM2 : d.extent?.m2 || 0;
+  const extentChip = extentM2 > 0
+    ? `<span class="fact-chip" title="ขนาดกรอบพื้นที่โดยประมาณจาก OpenStreetMap ไม่ใช่โฉนดหรือแนวเขตตามกฎหมาย">${pic('area')}${nw(`กรอบราว ${rai(extentM2)} ไร่`)}</span>` : '';
   const launchChip = s.launch
     ? `<span class="fact-chip" title="ช่วงเปิดตัวที่ทีมวิจัยพบ${s.launchWindow === 'in' && meta.window ? ` · อยู่ใน ${thaiDate(meta.window.from)}–${thaiDate(meta.window.to)}` : ''}">${pic('date')}${nw(`เปิดตัว ${esc(thaiPeriod(s.launch))}`)}</span>` : '';
   const priceChip = Number.isFinite(s.price) ? `<span class="fact-chip" title="ราคาเริ่มที่หน้าเว็บแสดงเมื่อทีมวิจัยอ่าน">${pic('fee')}${nw(`เริ่ม ${esc(millionBaht(s.price))}`)}</span>` : '';
@@ -424,7 +426,7 @@ export function renderSite(d, ctx = {}) {
       <div class="fact-chips terrain-chips" data-terrain-for="${esc(s.id)}"><span class="hint">กำลังอ่านภูมิประเทศ</span></div></section>` : ''}
     ${near}${sameBrand}
     ${d.siblings.length ? `<section class="panel-section"><div class="section-heading">${heading('building', `โครงการอื่นของ ${u.name}`)}<span class="hint">${num(d.siblings.length)} โครงการ</span></div>${siteList(d.siblings.slice(0, 8), {showProvince: true, showCompany: false})}${d.siblings.length > 8 ? `<p class="list-more"><button type="button" class="link-button" data-action="select-company" data-id="${esc(u.id)}">ดูทั้ง ${num(d.siblings.length + 1)} โครงการ</button></p>` : ''}</section>` : ''}
-    ${provenance(ctx, place ? `${s.name} · ${place}` : s.name, {records: Boolean(d.pairs?.length), projects: true, official, osm: s.extent >= 0, rail: Boolean(s.rail || s.rail2), terrain: hasPoint(s)})}`;
+    ${provenance(ctx, place ? `${s.name} · ${place}` : s.name, {records: Boolean(d.pairs?.length), projects: true, official, osm: s.extent >= 0 || Boolean(d.extent), rail: Boolean(s.rail || s.rail2), terrain: hasPoint(s)})}`;
 }
 
 /* ---------- Publisher (company) ---------- */
@@ -508,7 +510,7 @@ export function renderRecord(p, ctx = {}) {
         <h2${r.name ? '' : ' class="is-quiet"'}>${esc(recordName(r))}</h2>
         ${r.allocator ? `<p class="branch-name" title="ผู้จัดสรรตามระเบียน">${esc(r.allocator)}</p>` : ''}</div></div>
       <div class="metrics compact">${plots}${scope ? metricTile(scope, 'ขอบเขตแปลง', 'segment') : ''}</div>
-      <div class="fact-chips">${r.district && p.unit ? `<button type="button" class="fact-chip" data-action="select-unit" data-id="${esc(r.district)}" title="ขอบเขตที่ CityMETER นับรายการนี้">${pic('area')}${esc(place)}</button>` : `<span class="fact-chip">${pic('area')}${esc(place)}</span>`}</div>
+      <div class="fact-chips">${r.district && p.unit ? `<button type="button" class="fact-chip" data-action="select-unit" data-id="${esc(r.district)}" title="ขอบเขตที่ CityMETER นับรายการนี้">${pic('area')}${esc(place)}</button>` : `<span class="fact-chip">${pic('area')}${esc(place)}</span>`}${p.extent?.m2 > 0 ? `<span class="fact-chip" title="ขนาดกรอบพื้นที่โดยประมาณจาก OpenStreetMap ไม่ใช่โฉนดหรือแนวเขตตามกฎหมาย">${pic('area')}${nw(`กรอบราว ${rai(p.extent.m2)} ไร่`)}</span>` : ''}</div>
       ${address ? `<p class="fact-line" title="ที่ตั้งตามหน้าเว็บไซต์กรมที่ดิน">${pic('maps', 'fact-icon')}${esc(address)}</p>` : ''}
       ${p.point ? `<p class="fact-line" title="จุดที่ CityMETER production วางรายการนี้บนแผนที่">${pic('maps', 'fact-icon')}จุดตาม CityMETER production${p.atPoint.length ? ` · จุดเดียวกับอีก ${num(p.atPoint.length)} รายการ` : ''}</p>` : ''}
       ${names.length ? `<dl class="facts compact-facts">${names.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>` : ''}
@@ -519,7 +521,7 @@ export function renderRecord(p, ctx = {}) {
       </details>
     </section>
     ${types}${pairs}${shared}
-    ${provenance(ctx, `${recordName(r)} · ${place}`, {projects: p.pairs.length > 0, points: p.point ? String(p.pointsMeta?.readAt || '').slice(0, 10) : ''})}`;
+    ${provenance(ctx, `${recordName(r)} · ${place}`, {projects: p.pairs.length > 0, osm: Boolean(p.extent), points: p.point ? String(p.pointsMeta?.readAt || '').slice(0, 10) : ''})}`;
 }
 
 /* ---------- Station (CityMETER · Transit) ---------- */
