@@ -616,6 +616,17 @@ function refreshJoin() {
 }
 
 /**
+ * The open project's extent as lon/lat polygons for the focus tier (js/massing.js#countOwn): inside it the richer of
+ * CityMETER Building V4 and OpenStreetMap is drawn, by the units' 1.15 × rule (live 2026-11-18: in a CityMETER unit an
+ * estate's houses were often missing from V4 and lit nothing). [] without an open project or an extent.
+ */
+function ownExtent() {
+  const site = openSite();
+  const e = site && state.extents && site.extent >= 0 ? state.extents.byKey.get(site.id) : null;
+  return e ? extentPolygons(e.geometry).map(({outer, holes}) => ({outer, holes})) : [];
+}
+
+/**
  * The drawn buildings in the open project's extent (js/extent-buildings.js: a piece's interior point inside the extent),
  * lit with the project (the University rule of 2026-11-12, owner 2026-11-18: “ดูเรื่อง ขอบเขต campus ให้แสดงผลในลักษณะ
  * เดียวกับ University นะ”); null for a project without an extent.
@@ -1294,7 +1305,7 @@ function updateSpatialLayers() {
   state.buildingUnits?.ensureMany(codes);
   if (!state.buildingUnits || codes.every(c => state.buildingUnits.settled(c))) {
     const zones = state.buildingUnits?.zonesFor(regions) || [];
-    state.massing?.update({regions, hosts: [], anchors, zones, enabled: true, city: state.view3d, zoom: state.map.getZoom(), latitude: state.map.getCenter().lat})?.catch(e => console.warn('Massing', e));
+    state.massing?.update({regions, hosts: [], anchors, zones, own: ownExtent(), enabled: true, city: state.view3d, zoom: state.map.getZoom(), latitude: state.map.getCenter().lat})?.catch(e => console.warn('Massing', e));
   }
   applyJoin();
   state.pins?.layout();
@@ -1382,6 +1393,8 @@ function installSpatialLayers() {
       status.dataset.massing = `${result.features || 0}`;
       status.dataset.cmBuildings = `${result.cm?.kept || 0}`;
       state.buildingSources = {osm: result.osm || 0, cm: result.cm?.kept || 0};
+      // The open project's extent and the source it took (js/massing.js#countOwn): read by the live checks.
+      status.dataset.ownSource = result.own ? `${result.own.source}:${result.own.osm}/${result.own.cm}` : '';
       applyJoin();
       renderLegend();
     },

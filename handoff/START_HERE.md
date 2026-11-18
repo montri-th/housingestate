@@ -1,6 +1,6 @@
 # CityMETER Housing Estate — Developer Handoff
 
-รุ่นเผยแพร่ 0.1.0 · 18 พ.ย. 2569 · ชีตวิจัยอ่านและสร้างข้อมูล 18 พ.ย. 2569 (ไฟล์ส่งออกของเจ้าของ) · ยอดตรวจซ้ำกับ CityMETER production (`estate/info/lv0`) วันเดียวกัน · OpenStreetMap ณ 18 พ.ย. 2569
+รุ่นเผยแพร่ 0.1.1 · 18 พ.ย. 2569 · ชีตวิจัยอ่านและสร้างข้อมูล 18 พ.ย. 2569 (ไฟล์ส่งออกของเจ้าของ) · ยอดตรวจซ้ำกับ CityMETER production (`estate/info/lv0`) วันเดียวกัน · OpenStreetMap ณ 18 พ.ย. 2569
 
 เริ่มอ่าน `source/handoff/README.md` จากนั้น Product Statement (`source/PRODUCT_STATEMENT.md` + `source/handoff/product-statement.json`), Product Brief และ Implementation Plan ในโฟลเดอร์ `source/handoff` ทั้ง `.md` และ `.json` ใช้คู่กัน
 

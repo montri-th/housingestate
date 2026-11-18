@@ -36,6 +36,13 @@
  * replaced tile feature as a whole; its polygons outside the focus come back in a context layer drawn like the city
  * tier. Where a CityMETER tile is missing the area stays on OSM. A credit source names CityMETER Building V4 in the
  * map attribution while any of its buildings is drawn.
+ *
+ * The open subject's own extent (Housing Estate 0.1.1; live 2026-11-18: estates opened in a CityMETER unit lit next to
+ * nothing — 10 of 20 sampled extents lit no building: the houses OSM maps there were replaced by a V4 area without
+ * them): the same 1.15 × rule, applied to the extent as a unit of its own (`own`, js/massing.js#countOwn). Inside
+ * the extent the focus tier draws CityMETER Building V4 when its buildings standing there number at least
+ * OWN_RATIO × the OSM buildings a zone would replace there, else OSM: those OSM buildings stay (`keep`) and the
+ * CityMETER buildings standing in the extent are left out (`skipPolys`). Outside the extent the units decide as before.
  */
 import {parseVectorTile, tileToLonLat, lonLatToTileUnits, tilesForBBox, metresPerTileUnit} from './shell/mvt.js';
 import {clipRingToBox, offsetRing, roundRing, isClockwise, ringsIntersect, cleanRing, signedArea, pointInRing} from './shell/geometry.js';
@@ -123,6 +130,8 @@ export function cmFeatureId(tile, slot, ordinal) {
 export const MAX_CM_REQUESTS = 40;
 /** Height of a CityMETER building: `height_m` (a model estimate, sent as text); else this. */
 export const DEFAULT_CM_HEIGHT_M = 3;
+/** The building units' rule (owner 2026-11-01, point 3), applied to the open subject's own extent (countOwn). */
+export const OWN_RATIO = 1.15;
 export function cmHeight(properties = {}) {
   const h = Number(properties.height_m);
   return Number.isFinite(h) && h > 0 ? h : DEFAULT_CM_HEIGHT_M;
@@ -148,6 +157,81 @@ function zonesInTile(zones, tile, extent) {
 }
 const inZones = (pt, zoneRings) => zoneRings.some(z => pt[0] >= z.box.minX && pt[0] <= z.box.maxX && pt[1] >= z.box.minY && pt[1] <= z.box.maxY &&
   z.polys.some(p => pointInRing(pt, p[0]) && !p.slice(1).some(h => pointInRing(pt, h))));
+
+/** Lon/lat polygons [{outer, holes}] meeting a tile, in tile units with their box (the own extent). */
+function polysInTile(polys, tile, extent) {
+  if (!polys?.length) return [];
+  const tb = tileBox(tile), toTile = ring => ring.map(([lon, lat]) => lonLatToTileUnits(lon, lat, tile, extent));
+  return polys.filter(p => Array.isArray(p?.outer) && p.outer.length >= 4 && boxesMeet(ringBox(p.outer), tb)).map(p => {
+    const outer = toTile(p.outer);
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for (const [x, y] of outer) { if (x < minX) minX = x; if (x > maxX) maxX = x; if (y < minY) minY = y; if (y > maxY) maxY = y; }
+    return {outer, holes: (p.holes || []).map(toTile), box: {minX, minY, maxX, maxY}};
+  });
+}
+const inPolys = (pt, polys) => polys.some(p => pt[0] >= p.box.minX && pt[0] <= p.box.maxX && pt[1] >= p.box.minY && pt[1] <= p.box.maxY &&
+  pointInRing(pt, p.outer) && !p.holes.some(h => pointInRing(pt, h)));
+const insideTile = (pt, extent) => pt[0] >= 0 && pt[0] < extent && pt[1] >= 0 && pt[1] < extent;
+
+/** Clockwise outer rings (cleaned) of one MVT feature, each with its holes. */
+function polygonsOf(f) {
+  const polygons = [];
+  for (const raw of f.rings()) {
+    const ring = cleanRing(raw);
+    if (!ring) continue;
+    if (isClockwise(ring)) polygons.push({outer: ring, holes: []});
+    else if (polygons.length) polygons[polygons.length - 1].holes.push(ring);
+  }
+  return polygons;
+}
+
+/**
+ * Pure: the buildings standing in the open subject's own extent, by source, and the source the extent takes (the
+ * units' rule, OWN_RATIO). osm: OSM buildings of the loaded tiles (drawn, height > 0, not outlines mapped in parts)
+ * whose interior point lies in the extent and in a CityMETER zone of that tile — the ones a zone would replace; a
+ * building counts in the tile holding its interior point. cm: CityMETER Building V4 buildings whose interior point
+ * lies in the extent, each once (requests can share a building). own: lon/lat polygons [{outer, holes}].
+ * → {osm, cm, source: 'osm' | 'cm'}: 'cm' when cm ≥ OWN_RATIO × osm (so also when both are 0), else 'osm'.
+ */
+export function countOwn({tiles = [], layers = [], zonesOf = () => [], requests = [], cmLayers = [], own = []} = {}) {
+  let osm = 0, cm = 0;
+  if (own?.length) {
+    tiles.forEach((tile, i) => {
+      const layer = layers[i];
+      if (!layer?.features?.length) return;
+      const extent = layer.extent || 4096;
+      const ownRings = polysInTile(own, tile, extent);
+      const zoneRings = ownRings.length ? zonesInTile(zonesOf(tile), tile, extent) : [];
+      if (!zoneRings.length) return;
+      for (const f of layer.features) {
+        if (f.type !== 3 || f.properties.hide_3d === true || !(Number(f.properties.render_height) > 0)) continue;
+        for (const poly of polygonsOf(f)) {
+          const at = interiorOf(poly.outer);
+          if (insideTile(at, extent) && inPolys(at, ownRings) && inZones(at, zoneRings)) osm++;
+        }
+      }
+    });
+    const seen = new Set();
+    requests.forEach((q, i) => {
+      const layer = cmLayers[i];
+      if (!layer?.features?.length) return;
+      const extent = layer.extent || 4096;
+      const ownRings = polysInTile(own, q.tile, extent);
+      if (!ownRings.length) return;
+      for (const f of layer.features) {
+        if (f.type !== 3) continue;
+        for (const poly of polygonsOf(f)) {
+          const at = interiorOf(poly.outer);
+          if (!insideTile(at, extent) || !inPolys(at, ownRings)) continue;
+          const key = `${q.tile.x}/${q.tile.y}|${poly.outer.length}|${poly.outer[0].join(',')}|${poly.outer[1].join(',')}`;
+          if (seen.has(key)) continue;
+          seen.add(key); cm++;
+        }
+      }
+    });
+  }
+  return {osm, cm, source: cm >= OWN_RATIO * osm ? 'cm' : 'osm'};
+}
 
 /**
  * CityMETER tiles of a focus: one request per tile of the focus tier and tile unit (อปท., or a แขวง of a Bangkok
@@ -252,7 +336,7 @@ export function outerRings(feature) {
  * feature as a whole — one OpenFreeMap feature can carry many buildings — so its polygons outside the focus come back
  * as `context` features, unshaped, to be drawn like the city tier.
  */
-export function shapeTile(tile, layer, {regions = [], hosts = [], radiusM, offsetM, segments = 3, zones = [], near = null} = {}) {
+export function shapeTile(tile, layer, {regions = [], hosts = [], radiusM, offsetM, segments = 3, zones = [], near = null, keep = []} = {}) {
   const extent = layer.extent || 4096;
   const mpu = metresPerTileUnit(tile, extent);
   const r = radiusM / mpu, d = offsetM / mpu;
@@ -264,6 +348,8 @@ export function shapeTile(tile, layer, {regions = [], hosts = [], radiusM, offse
   const nearUnits = Array.isArray(near) && near.length >= 4 ? toTile(near) : null;
   const inFocus = outer => (!nearUnits || ringsIntersect(outer, nearUnits)) && regionRings.some(region => ringsIntersect(outer, region));
   const zoneRings = zonesInTile(zones, tile, extent);
+  // The open subject's own extent where OSM is the richer source (countOwn): its OSM buildings are never replaced.
+  const keepRings = zoneRings.length ? polysInTile(keep, tile, extent) : [];
   const features = [], footprints = [], hiddenIds = new Set(), context = [], partOutlines = [];
   let kept = 0, dropped = 0, replaced = 0, ordinal = 0, outlineOrdinal = OUTLINE_ORDINAL;
   // Outlines of buildings OSM maps in parts that fall in a zone: their parts stay (LOD2).
@@ -315,7 +401,7 @@ export function shapeTile(tile, layer, {regions = [], hosts = [], radiusM, offse
       if (place === 'focus' && hostRings.some(host => ringsIntersect(outer, host))) place = 'host';
       else if (place === 'focus' && zoneRings.length) {
         const at = interiorOf(poly.outer);
-        if (inZones(at, zoneRings) && !inPartOutline(at)) place = 'replaced';
+        if (inZones(at, zoneRings) && !inPartOutline(at) && !inPolys(at, keepRings)) place = 'replaced';
       }
       items.push({id, poly, outer, place});
     }
@@ -355,10 +441,10 @@ export function shapeTile(tile, layer, {regions = [], hosts = [], radiusM, offse
  * `height_m`, the dataset's model estimate (cmHeight). Footprints carry `source: 'cm'` and are whole (never cut by
  * a tile edge). Returns {features, footprints, kept, away, shared, inParts}.
  */
-export function shapeCmTile(tile, layer, {regions = [], radiusM, offsetM, segments = 3, slot = 0, skipRings = [], seen = new Set(), near = null} = {}) {
+export function shapeCmTile(tile, layer, {regions = [], radiusM, offsetM, segments = 3, slot = 0, skipRings = [], seen = new Set(), near = null, skipPolys = []} = {}) {
   const features = [], footprints = [];
-  let kept = 0, away = 0, shared = 0, inParts = 0, ordinal = 0;
-  if (!layer?.features?.length) return {features, footprints, kept, away, shared, inParts};
+  let kept = 0, away = 0, shared = 0, inParts = 0, inOwn = 0, ordinal = 0;
+  if (!layer?.features?.length) return {features, footprints, kept, away, shared, inParts, inOwn};
   const extent = layer.extent || 4096;
   const mpu = metresPerTileUnit(tile, extent);
   const r = radiusM / mpu, d = offsetM / mpu;
@@ -367,6 +453,7 @@ export function shapeCmTile(tile, layer, {regions = [], radiusM, offsetM, segmen
   const regionRings = regions.map(toTile);
   const nearUnits = Array.isArray(near) && near.length >= 4 ? toTile(near) : null;
   const tb = tileBox(tile), skip = skipRings.filter(ring => boxesMeet(ringBox(ring), tb)).map(toTile);
+  const own = polysInTile(skipPolys, tile, extent);
   for (const f of layer.features) {
     if (f.type !== 3) continue;
     const height = cmHeight(f.properties);
@@ -388,6 +475,7 @@ export function shapeCmTile(tile, layer, {regions = [], radiusM, offsetM, segmen
       if (nearUnits && !ringsIntersect(poly.outer, nearUnits)) continue;
       if (!regionRings.some(region => ringsIntersect(poly.outer, region))) continue;
       if (skip.some(o => pointInRing(at, o))) { inParts++; continue; }
+      if (own.length && inPolys(at, own)) { inOwn++; continue; }
       const shapedOuter = roundRing(offsetRing(poly.outer, d, 1), r, segments, {encloseOffset: d});
       const shapedHoles = poly.holes.map(h => roundRing(offsetRing(h, d, 1), r, segments, {encloseOffset: d}))
         .filter(h => Math.abs(signedArea(h)) > 0);
@@ -397,7 +485,7 @@ export function shapeCmTile(tile, layer, {regions = [], radiusM, offsetM, segmen
       kept++;
     }
   }
-  return {features, footprints, kept, away, shared, inParts};
+  return {features, footprints, kept, away, shared, inParts, inOwn};
 }
 
 function ringBox(ring) {
@@ -466,7 +554,7 @@ export function installMassing(map, {sourceId = 'openmaptiles', beforeId, colors
   // Context features carry their fade as a property (written at shaping time and when the anchors change).
   const contextColor = () => ['interpolate', ['linear'], ['coalesce', ['get', 'fade'], 1], 0, palette.quiet, 1, palette.ground];
   let enabled = true, hiddenIds = [], disposed = false, token = 0, lastKey = '', lastBucket = -1, lastTruncated = false;
-  let lastInput = {regions: [], hosts: [], latitude: 13.75, city: true, zones: []};
+  let lastInput = {regions: [], hosts: [], latitude: 13.75, city: true, zones: [], own: []};
   const cache = new Map(), cmCache = new Map();
 
   const before = beforeId && map.getLayer(beforeId) ? beforeId : undefined;
@@ -615,11 +703,12 @@ export function installMassing(map, {sourceId = 'openmaptiles', beforeId, colors
    * regions: lon/lat outer rings of the focused neighborhoods; hosts: rings of
    * host buildings currently drawn by buildings.js; zoom: current map zoom;
    * city: the city tier is shown (3D) — kept for zoom- and move-triggered rebuilds;
-   * zones: CityMETER units (js/shell/building-units.js) meeting the regions, drawn from CityMETER Building V4.
+   * zones: CityMETER units (js/shell/building-units.js) meeting the regions, drawn from CityMETER Building V4;
+   * own: the open subject's extent as lon/lat polygons [{outer, holes}], which takes the richer source (countOwn).
    */
-  async function update({regions = lastInput.regions, hosts = lastInput.hosts, zoom = map.getZoom(), enabled: on = enabled, city = lastInput.city ?? enabled, latitude = lastInput.latitude, anchors: nextAnchors = null, center = null, zones = lastInput.zones} = {}) {
+  async function update({regions = lastInput.regions, hosts = lastInput.hosts, zoom = map.getZoom(), enabled: on = enabled, city = lastInput.city ?? enabled, latitude = lastInput.latitude, anchors: nextAnchors = null, center = null, zones = lastInput.zones, own = lastInput.own ?? []} = {}) {
     enabled = on;
-    lastInput = {regions, hosts, latitude, city, zones};
+    lastInput = {regions, hosts, latitude, city, zones, own};
     if (nextAnchors) setAnchors(nextAnchors);
     // In plan view (pitch 0) the focus tier still draws as flat rounded footprints; the city tier is hidden.
     for (const id of [CITY_LAYER, CONTEXT_LAYER]) if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', enabled && city ? 'visible' : 'none');
@@ -636,7 +725,7 @@ export function installMassing(map, {sourceId = 'openmaptiles', beforeId, colors
     const ready = typeof tileUrl === 'function' && tiles.length > 0 && tiles.every(t => Boolean(tileUrl(t)));
     const plan = typeof cmTileUrl === 'function' && !waiting ? planCmRequests(tiles, zones, {center: camera, max: maxCm}) : {requests: [], zonesByTile: new Map(), truncated: false};
     const ringKey = rings => `${rings.length}:${rings.map(r => r.length + ':' + r[0]?.join(',')).join('|')}`;
-    const key = `${enabled}|${ready}|${bucket}|${city}|${ringKey(regions)}|${ringKey(hosts)}|${tiles.map(t => `${t.x}/${t.y}`).join(',')}|${plan.requests.map(q => q.key).join(',')}|${near ? (waiting ? 'wait' : near.key) : ''}`;
+    const key = `${enabled}|${ready}|${bucket}|${city}|${ringKey(regions)}|${ringKey(hosts)}|${ringKey(own.map(p => p.outer))}|${tiles.map(t => `${t.x}/${t.y}`).join(',')}|${plan.requests.map(q => q.key).join(',')}|${near ? (waiting ? 'wait' : near.key) : ''}`;
     if (key === lastKey) return {features: 0, tiles: 0, cached: true};
     // Following the camera (onRetile) also when the focus is shaped round it.
     lastKey = key; lastBucket = bucket; lastTruncated = truncated || Boolean(near);
@@ -673,6 +762,13 @@ export function installMassing(map, {sourceId = 'openmaptiles', beforeId, colors
       const k = `${t.z}/${t.x}/${t.y}`, ids = plan.zonesByTile.get(k), bad = failed.get(k);
       return ids ? zones.filter(z => ids.has(z.id) && !bad?.has(z.id)) : [];
     };
+    // The open subject's own extent takes the richer source (countOwn): OSM there → its OSM buildings stay, CityMETER's go.
+    let ownCount = null;
+    if (own.length) {
+      const usable = plan.requests.map(q => !failed.get(`${q.tile.z}/${q.tile.x}/${q.tile.y}`)?.has(q.zone.id));
+      ownCount = countOwn({tiles, layers, zonesOf: zonesOfTile, requests: plan.requests.filter((q, i) => usable[i]), cmLayers: cmLayers.filter((l, i) => usable[i]), own});
+    }
+    const keep = ownCount?.source === 'osm' ? own : [];
     const features = [], footprints = [], hidden = new Set(), context = [], partOutlines = [];
     let kept = 0, dropped = 0, replaced = 0;
     // One tile per task (Phase 0, 2026-11-11): shaping is main-thread work, so input and frames get a turn between
@@ -681,7 +777,7 @@ export function installMassing(map, {sourceId = 'openmaptiles', beforeId, colors
     for (let i = 0; i < layers.length; i++) {
       const layer = layers[i];
       if (!layer) continue;
-      const shaped = shapeTile(tiles[i], layer, {regions, hosts, radiusM, offsetM, zones: zonesOfTile(tiles[i]), near: near?.ring || null});
+      const shaped = shapeTile(tiles[i], layer, {regions, hosts, radiusM, offsetM, zones: zonesOfTile(tiles[i]), near: near?.ring || null, keep});
       features.push(...shaped.features); footprints.push(...shaped.footprints); context.push(...shaped.context); partOutlines.push(...shaped.partOutlines);
       shaped.hiddenIds.forEach(id => hidden.add(id)); kept += shaped.kept; dropped += shaped.dropped; replaced += shaped.replaced;
       if (now() - sliceStart > SLICE_MS) {
@@ -695,14 +791,14 @@ export function installMassing(map, {sourceId = 'openmaptiles', beforeId, colors
         sliceStart = now();
       }
     }
-    const cm = {requests: plan.requests.length, failed: cmLayers.filter(l => !l).length, truncated: plan.truncated, kept: 0, away: 0, shared: 0, inParts: 0};
+    const cm = {requests: plan.requests.length, failed: cmLayers.filter(l => !l).length, truncated: plan.truncated, kept: 0, away: 0, shared: 0, inParts: 0, inOwn: 0};
     const seen = new Set();
     plan.requests.forEach((q, i) => {
       const k = `${q.tile.z}/${q.tile.x}/${q.tile.y}`;
       if (!cmLayers[i] || failed.get(k)?.has(q.zone.id)) return;
-      const shaped = shapeCmTile(q.tile, cmLayers[i], {regions, radiusM, offsetM, slot: q.slot, skipRings: partOutlines, seen, near: near?.ring || null});
+      const shaped = shapeCmTile(q.tile, cmLayers[i], {regions, radiusM, offsetM, slot: q.slot, skipRings: partOutlines, seen, near: near?.ring || null, skipPolys: keep});
       features.push(...shaped.features); footprints.push(...shaped.footprints);
-      cm.kept += shaped.kept; cm.away += shaped.away; cm.shared += shaped.shared; cm.inParts += shaped.inParts;
+      cm.kept += shaped.kept; cm.away += shaped.away; cm.shared += shaped.shared; cm.inParts += shaped.inParts; cm.inOwn += shaped.inOwn;
     });
     // Ids are stable per tile building (focusFeatureId, cmFeatureId); the OSM id stays in properties.
     currentFeatures = features;
@@ -713,7 +809,7 @@ export function installMassing(map, {sourceId = 'openmaptiles', beforeId, colors
     setCredit(cm.kept > 0);
     setFocusMinZoom(city && !truncated && !near ? FOCUS_MIN_ZOOM : CITY_MIN_ZOOM);
     updateOcclusion();
-    const result = {features: kept + cm.kept, osm: kept, droppedForHosts: dropped, replaced, context: context.length, cm, tiles: tiles.length, truncated, near: Boolean(near), minZoom: focusMinZoom, radiusM, offsetM, occluders: occluderIds.length, version};
+    const result = {features: kept + cm.kept, osm: kept, droppedForHosts: dropped, replaced, context: context.length, cm, own: ownCount, tiles: tiles.length, truncated, near: Boolean(near), minZoom: focusMinZoom, radiusM, offsetM, occluders: occluderIds.length, version};
     // Every applied result (including zoom-triggered rebuilds) reaches the host app through onResult,
     // so a caller whose own update was superseded still sees the figures that are on screen.
     if (typeof onResult === 'function') { try { onResult(result); } catch (e) { console.warn('Massing onResult', e); } }

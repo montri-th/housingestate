@@ -1,6 +1,6 @@
 # CityMETER · Housing Estate
 
-> Allocated plots the Department of Lands (DOL) website allocation records report, per production district and province across Thailand (the CityMETER production estate layer, ?d=estate), with the housing estate projects the research team collected from developers' own catalogues: reference pins, approximate extents from OpenStreetMap with the buildings inside lit in 3D, labels and starting prices as the pages showed them, the launch the research team found, legal entities and parents from notices and company reports, the DOL records paired with each project, and straight-line distance to rail stations (CityMETER Transit). A Landometer CityMETER public demo, release 0.1.0 (2026-11-18), Thai with an English reading (?lang=en). Research master read and built 2026-11-18.
+> Allocated plots the Department of Lands (DOL) website allocation records report, per production district and province across Thailand (the CityMETER production estate layer, ?d=estate), with the housing estate projects the research team collected from developers' own catalogues: reference pins, approximate extents from OpenStreetMap with the buildings inside lit in 3D, labels and starting prices as the pages showed them, the launch the research team found, legal entities and parents from notices and company reports, the DOL records paired with each project, and straight-line distance to rail stations (CityMETER Transit). A Landometer CityMETER public demo, release 0.1.1 (2026-11-18), Thai with an English reading (?lang=en). Research master read and built 2026-11-18.
 
 What one figure means:
 - record (รายการ) = one DOL website allocation record of the CityMETER production snapshot (19,753). A registration, not a village: one estate can hold several records (phases). Records are never merged and carry no point.
@@ -14,7 +14,7 @@ What one figure means:
 - allocator = named only when the name carries a legal-entity form.
 - distances = straight lines between reference points; not walking routes, travel times or catchments.
 
-Snapshot (release 0.1.0; fixtures, recompute from data):
+Snapshot (release 0.1.1; fixtures, recompute from data):
 - 46% of the allocated plots nationwide (1,236,824 of 2,689,640) are in Bangkok, Pathum Thani and Chon Buri; among house plots only, 47% (1,101,249 of 2,335,133).
 - Records: Bangkok 3,767, Chon Buri 2,849, Pathum Thani 1,294 — 40% of 19,753.
 - In Bangkok, 24% of the plots (127,566 of 539,167) are in Bang Khun Thian, Prawet and Sai Mai; in Chiang Mai, 66% in Mueang Chiang Mai, San Sai and San Kamphaeng.

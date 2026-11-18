@@ -2,7 +2,7 @@
   "$schema": "./handoff.schema.json",
   "schemaVersion": "1.5.0",
   "productId": "citymeter-housingestate",
-  "productVersion": "0.1.0",
+  "productVersion": "0.1.1",
   "updatedOn": "2026-11-18",
   "documentType": "product-brief",
   "datasetCheckedOn": "2026-11-18",
@@ -156,7 +156,7 @@
     "dataBoundary": "Google’s answers are Google’s: never copied into the data"
   },
   "buildingJoinContract": {
-    "buildings": "the focus massing (CityMETER Building V4 or OpenStreetMap per building unit)",
+    "buildings": "the focus massing (CityMETER Building V4 or OpenStreetMap per building unit; inside the open project’s extent the richer of the two, js/massing.js#countOwn)",
     "points": "the interior point of each drawn building piece, tested against the open project’s extent (js/extent-buildings.js)",
     "rule": "a drawn building with a piece inside the extent (outside its holes) is lit whole in map.activeLayer; js/shell/building-join.js#joinBuildings is given no points of its own",
     "click": "a lit building opens “อาคารในกรอบโครงการ” with “สูงราว N ม.” and the two-point camera",
@@ -179,7 +179,8 @@
     "hostTier": "unused",
     "rounding": "roundingRadiusM(zoom) 3–12 m",
     "enclosure": "encloseOffsetM keeps the rounded shape around the original outline",
-    "buildingSource": "data/building-units/ (copied from montri-th/university @f610edb: the Hotel units plus the อปท. round the campuses)"
+    "buildingSource": "data/building-units/ (copied from montri-th/university @f610edb: the Hotel units plus the อปท. round the campuses)",
+    "ownExtent": "the open project’s extent is a building unit of its own (js/massing.js#countOwn): CityMETER Building V4 when its buildings standing there number at least 1.15 × the OSM buildings a CityMETER zone would replace there, else OSM (those OSM buildings stay, the V4 ones in the extent are left out); outside the extent the units decide"
   },
   "cameraContract": {
     "presets": {
@@ -383,6 +384,6 @@
     "site": "GitHub Pages from main /root",
     "handoff": "dist/CityMETER-Housing-Estate-Developer-Handoff.zip (START_HERE.md, RELEASE_RECEIPT.json, evidence/, source/)",
     "liveCheck": "npm run verify:live",
-    "cacheTag": "?v=20261118-r1 on every entry file and, through the import map in index.html, on every ES module; the optional data files take the same tag from import.meta.url; bump it with package.json version (tests/release.test.js); icon fonts inside the stylesheets carry ?v=<first 8 hex of their SHA-256> (tests/icons.test.js)"
+    "cacheTag": "?v=20261118-r2 on every entry file and, through the import map in index.html, on every ES module; the optional data files take the same tag from import.meta.url; bump it with package.json version (tests/release.test.js); icon fonts inside the stylesheets carry ?v=<first 8 hex of their SHA-256> (tests/icons.test.js)"
   }
 }

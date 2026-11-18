@@ -2,7 +2,7 @@
   "$schema": "./handoff.schema.json",
   "schemaVersion": "1.5.0",
   "productId": "citymeter-housingestate",
-  "productVersion": "0.1.0",
+  "productVersion": "0.1.1",
   "updatedOn": "2026-11-18",
   "documentType": "implementation-plan",
   "architecture": {
@@ -191,7 +191,8 @@
         "js/extent-buildings.js",
         "js/stations.js",
         "js/massing.js",
-        "js/app.js"
+        "js/app.js",
+        "js/massing.js (own-extent source rule, 0.1.1)"
       ],
       "status": "done"
     },
@@ -360,8 +361,8 @@
     {
       "id": "A10",
       "scenario": "lit buildings",
-      "expected": "the drawn buildings in the open extent, holes excluded, lit whole; membership by match",
-      "verificationType": "unit (tests/extent-buildings.test.js, tests/massing.test.js)"
+      "expected": "the drawn buildings in the open extent, holes excluded, lit whole; membership by match; inside the extent the richer of CityMETER Building V4 and OSM is drawn (1.15 × rule)",
+      "verificationType": "unit (tests/extent-buildings.test.js, tests/massing.test.js, tests/building-units.test.js) + live walk"
     },
     {
       "id": "A11",

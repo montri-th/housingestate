@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {tileToLonLat, parseVectorTile} from '../js/shell/mvt.js';
-import {shapeTile, shapeCmTile, planCmRequests, installMassing, cmFeatureId, focusFeatureId, cmHeight, tileBox, CM_ID_BASE, CM_SLOTS, DEFAULT_CM_HEIGHT_M, HEIGHT_LIFT_M,
+import {shapeTile, shapeCmTile, planCmRequests, installMassing, cmFeatureId, focusFeatureId, cmHeight, tileBox, countOwn, OWN_RATIO, CM_ID_BASE, CM_SLOTS, DEFAULT_CM_HEIGHT_M, HEIGHT_LIFT_M,
   MAX_CM_REQUESTS, CITY_LAYER, CONTEXT_LAYER, CONTEXT_SOURCE, CM_CREDIT_LAYER, FOCUS_SOURCE, roundingRadiusM, encloseOffsetM} from '../js/massing.js';
 import {cmTileUrl, zoneAt, zonesFor, zonesOf, validUnitFile, createBuildingUnitStore, CM_TILE_API, CM_ATTRIBUTION} from '../js/shell/building-units.js';
 import {joinBuildings} from '../js/shell/building-join.js';
@@ -275,4 +275,45 @@ test('building units: every unit follows the 15 % rule from its own recorded cou
     assert.ok(!/drive\.google|docs\.google|spreadsheets/.test(text), `${f}: no private links`);
     if (f !== 'index.json') assert.ok(!/https?:\/\//.test(text), `${f}: no URLs`);
   }
+});
+
+/* ---------- the open subject's own extent takes the richer source (Housing Estate 0.1.1, js/massing.js#countOwn) ---------- */
+test('own extent: OSM wins where CityMETER holds fewer than 1.15 × its buildings — those OSM buildings stay, CityMETER’s in the extent go; holes and outside unchanged', () => {
+  // Own extent inside the unit (left half): tile units 200…1800, with a hole 1400…1700.
+  const holeRing = [[1400, 1400], [1400, 1700], [1700, 1700], [1700, 1400], [1400, 1400]];
+  const own = [{outer: ll([[200, 200], [1800, 200], [1800, 1800], [200, 1800], [200, 200]]), holes: [ll(holeRing)]}];
+  const osm = parseVectorTile(encodeTile([{name: 'building', features: [
+    {id: 301, properties: {render_height: 6}, rings: [square(300, 300, 50)]},   // in the extent and the unit
+    {id: 302, properties: {render_height: 6}, rings: [square(600, 600, 50)]},   // in the extent and the unit
+    {id: 303, properties: {render_height: 6}, rings: [square(900, 300, 50)]},   // in the extent and the unit
+    {id: 304, properties: {render_height: 6}, rings: [square(1500, 1500, 50)]}, // in the hole: the unit decides (replaced)
+    {id: 305, properties: {render_height: 6}, rings: [square(2500, 300, 50)]},  // outside the unit: OSM anyway, not counted
+  ]}])).layers.building;
+  const cmFeatures = n => [
+    {properties: {height_m: '6.00'}, rings: [square(310, 310, 40)]},   // in the extent
+    {properties: {height_m: '6.00'}, rings: [square(1000, 1000, 40)]}, // in the extent
+    {properties: {height_m: '6.00'}, rings: [square(1520, 1520, 40)]}, // in the hole
+    {properties: {height_m: '6.00'}, rings: [square(100, 3000, 40)]},  // outside the extent
+    ...Array.from({length: n}, (_, i) => ({properties: {height_m: '6.00'}, rings: [square(400 + i * 60, 1200, 40)]})), // more in the extent
+  ];
+  const cmOf = n => parseVectorTile(encodeTile([{name: 'building-detail', features: cmFeatures(n)}])).layers['building-detail'];
+  const request = {tile: T, zone: ZONE, tileUnit: ZONE.tileUnits[0], tileType: 'MUNICIPALITY', slot: 0, key: 'k'};
+  const count = cm => countOwn({tiles: [T], layers: [osm], zonesOf: () => [ZONE], requests: [request], cmLayers: [cm], own});
+  assert.deepEqual(count(cmOf(0)), {osm: 3, cm: 2, source: 'osm'}, '2 < 1.15 × 3: OSM is the richer source in the extent');
+  assert.deepEqual(count(cmOf(2)), {osm: 3, cm: 4, source: 'cm'}, '4 ≥ 3.45: CityMETER stays');
+  assert.deepEqual(countOwn({tiles: [T], layers: [osm], zonesOf: () => [], requests: [], cmLayers: [], own}), {osm: 0, cm: 0, source: 'cm'}, 'no unit: nothing to decide');
+  assert.equal(countOwn({tiles: [T], layers: [osm], zonesOf: () => [ZONE], own: []}).osm, 0, 'no extent: nothing counted');
+  // OSM wins: its buildings in the extent are kept, the one in the hole is still replaced by the unit.
+  const whole = ll([[-10, -10], [4106, -10], [4106, 4106], [-10, 4106], [-10, -10]]);
+  const kept = shapeTile(T, osm, {regions: [whole], radiusM: r, offsetM: d, zones: [ZONE], keep: own});
+  assert.deepEqual(kept.features.map(f => f.properties.osm_id).sort(), [301, 302, 303, 305]);
+  assert.equal(kept.replaced, 1, '304 (in the hole) is replaced as before');
+  const before = shapeTile(T, osm, {regions: [whole], radiusM: r, offsetM: d, zones: [ZONE]});
+  assert.deepEqual(before.features.map(f => f.properties.osm_id).sort(), [305], 'without the rule the unit replaces all four');
+  assert.equal(kept.features.find(f => f.properties.osm_id === 305).id, before.features.find(f => f.properties.osm_id === 305).id, 'ids stay per tile building');
+  // …and CityMETER's buildings standing in the extent are left out; the hole and outside are drawn.
+  const cm = shapeCmTile(T, cmOf(0), {regions: [whole], radiusM: r, offsetM: d, skipPolys: own});
+  assert.equal(cm.inOwn, 2); assert.equal(cm.kept, 2);
+  assert.equal(shapeCmTile(T, cmOf(0), {regions: [whole], radiusM: r, offsetM: d}).kept, 4, 'without skipPolys every CityMETER building is drawn');
+  assert.equal(OWN_RATIO, 1.15, 'the units’ rule (owner 2026-11-01, point 3)');
 });

@@ -1,5 +1,12 @@
 # CityMETER Housing Estate — verification
 
+## Release 0.1.1 — 18 พ.ย. 2569
+
+From the first live walk of 0.1.0 (GitHub Pages at 8db4150, the owner's Chrome, real basemap): an estate opened in a CityMETER unit lit next to nothing. Baan Klang Muang The Edition Srinakarin–Suan Luang (Prawet, “กรอบราว 38 ไร่”): 4,228 CityMETER Building V4 pieces in the focus, 0 of them in the extent; the houses inside it were OpenStreetMap buildings the unit had replaced (the basemap's flat footprints showed through). A sample of 20 of the 139 extents (every seventh): 10 lit no building, 2 one, 5 two to five, one 8, the best 43 and 62.
+
+- Fix (`js/massing.js#countOwn`, `DATA_METHOD.md` §6): the open project's extent is a building unit of its own — CityMETER Building V4 when its buildings standing there number at least 1.15 × the OSM buildings a unit would replace there (the units' rule), else OSM: those OSM buildings stay and the V4 buildings in the extent are left out. Outside the extent the units decide as before. `tests/building-units.test.js` (counts, the decision both ways, a hole in the extent, ids unchanged).
+- Local: 166 tests pass. Live results follow below once published.
+
 ## Release 0.1.0 — 18 พ.ย. 2569
 
 ผลตรวจของรุ่นแรก แยกสิ่งที่ตรวจในเครื่องสร้าง (build container) ออกจากสิ่งที่ตรวจบนเว็บจริง ผลในเครื่องไม่ใช่หลักฐานแทน live URL
@@ -29,7 +36,9 @@ Chromium (Playwright) against `python3 -m http.server`; the map library and base
 
 ### 5. Live
 
-Pending at the time of this commit: GitHub Pages, `npm run verify:live`, and a walk of the live site in Chrome (district chips, extents, lit buildings, massing and x-ray need the real basemap). Results are added here after publication.
+- GitHub Pages enabled from `main` / root (the owner's Chrome; the session's GitHub API path for repository settings is closed); deployment of 8db4150 served at https://montri-th.github.io/housingestate/.
+- `npm run verify:live`: 183 ok, 0 failed (every published file equal to the manifest of 8db4150).
+- Live walk (the owner's Chrome, real basemap, dark): the overview (46% in Bangkok, Pathum Thani, Chon Buri; the house-plot bar 47%; province chips with plots), Bangkok (district chips with their 41-sample swatches; 24% in Bang Khun Thian, Prawet, Sai Mai), a project in 3D with its extent outlined — and the lit-building gap fixed in 0.1.1.
 
 ### 6. Not verified
 

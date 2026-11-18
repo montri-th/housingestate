@@ -1,6 +1,6 @@
 # CityMETER Housing Estate — data method
 
-What the numbers on the page are, where they come from, how they were built and what they are not. Release 0.1.0,
+What the numbers on the page are, where they come from, how they were built and what they are not. Release 0.1.1,
 data read 18 November 2026 (`meta.readOn`). Every figure below is a fixture of this snapshot (tests), never a UI
 constant: the page computes it from the data.
 
@@ -92,7 +92,10 @@ size; the extents file credits “© OpenStreetMap contributors” under ODbL-1.
 
 The drawn buildings whose interior point stands in the open project's extent are lit in the active-layer colour
 (`js/extent-buildings.js`), as an open campus lights its buildings in CityMETER · University; they are never counted on
-screen (the number drawn depends on the device's map budget).
+screen (the number drawn depends on the device's map budget). Inside the open project's extent the map draws the richer
+source (`js/massing.js#countOwn`, release 0.1.1): CityMETER Building V4 when its buildings standing there number at least
+1.15 × the OpenStreetMap buildings a CityMETER unit would replace there — the units' own rule, applied to the extent as a
+unit of its own — else OpenStreetMap (new estates are often mapped in OpenStreetMap before they appear in V4).
 
 ## 7. Context
 
