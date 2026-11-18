@@ -10,7 +10,7 @@ From the phone check of 0.1.1 (the owner's Chrome, a 390 × 740 frame of the sam
 - Live (GitHub Pages, cache tag r4; the owner's Chrome, real basemap, frames of the same origin):
   - Phone 390 × 740, `?lean=phone`: Supalai Ville Wongwaen–Lamlukka Khlong 7 opens in 3D (pitch 60, zoom 14.46), OSM chosen in its extent (122 OSM, 0 V4), 130 buildings lit; Bangkok in Thai — 5 chips, none over another; Chiang Mai in English — 8 chips (6 districts and 2 neighbouring provinces), none over another; no horizontal scroll.
   - Desktop in English: Baan Klang Muang The Edition — 92 buildings lit, the legend “Buildings in the project extent”, `__citymeterI18n.missing` empty; project names stay Thai as the data carries them.
-  - `npm run verify:live` on the commit that adds this record: see the line below.
+  - `npm run verify:live` at 1f9e6cb (the record of these checks): 183 ok, 0 failed. This line was added after that run; the manifest is generated again for the commit that carries it.
 
 ## Release 0.1.1 — 18 พ.ย. 2569
 
