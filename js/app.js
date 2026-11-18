@@ -1131,7 +1131,12 @@ function fitSite(s, {instant = false} = {}) {
   // The fit may still land below that zoom (it only stops zooming out there): take its camera and hold the zoom.
   const target = fitPitched(state.map, boundsOf([box]), {...options, apply: false});
   if (!target) return;
-  const camera = {...target, zoom: Math.max(target.zoom, minZoom)};
+  // The middle of the estate at the middle of the free map above the sheet (Housing Estate 0.1.2; live 2026-11-18 at
+  // 390 px: the fit's pitched shift left an estate 900 m below the middle the lean ring is drawn round — js/massing.js
+  // viewCenter — and its buildings unshaped and unlit).
+  const b = visibleBox(), el = $('map');
+  const camera = {...target, center: [(box[0][0] + box[1][0]) / 2, (box[0][1] + box[1][1]) / 2], zoom: Math.max(target.zoom, minZoom),
+    padding: {top: b.top, left: b.left, right: Math.max(0, el.clientWidth - b.right), bottom: Math.max(0, el.clientHeight - b.bottom)}};
   if (options.animate) state.map.easeTo({...camera, duration: 650}); else state.map.jumpTo(camera);
 }
 
@@ -1536,7 +1541,7 @@ function initMap() {
     document.fonts?.ready?.then(() => spaceTicks($('map-legend')));
     state.freeBoxObserver ||= watchFreeBox();
     // District chips first: the province chips keep clear of them (js/map-layers.js `avoid`).
-    state.districtLabels = installAreaLabels(state.map, $('map'), {className: 'neighborhood-label', hostId: 'district-labels', hostLabel: 'เขตและอำเภอบนแผนที่', minZoom: 7, maxZoom: 13.5, verb: 'กดเพื่อดูเขตหรืออำเภอ', onSelect: id => selectUnit(id), reservedBottom: labelBottomSpace, maxLabels: 40, detailZoomClass: false});
+    state.districtLabels = installAreaLabels(state.map, $('map'), {className: 'neighborhood-label', hostId: 'district-labels', hostLabel: 'เขตและอำเภอบนแผนที่', minZoom: 6, maxZoom: 13.5, verb: 'กดเพื่อดูเขตหรืออำเภอ', onSelect: id => selectUnit(id), reservedBottom: labelBottomSpace, maxLabels: 40, detailZoomClass: false});
     state.provinceLabels = installAreaLabels(state.map, $('map'), {className: 'province-label', hostId: 'province-labels', hostLabel: 'จังหวัดบนแผนที่', minZoom: PROVINCE_VIEW_MIN_ZOOM, maxZoom: PROVINCE_LABEL_MAX_ZOOM, verb: 'กดเพื่อดูจังหวัด', onSelect: code => selectProvince(code), reservedBottom: labelBottomSpace, maxLabels: 77, avoid: '#district-labels .area-label:not([hidden])'});
     state.map.on('zoomend', () => { if (state.loaded) renderLegend(); });
     state.map.on('moveend', scheduleLabelView);

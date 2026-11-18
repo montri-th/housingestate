@@ -2,7 +2,7 @@
   "$schema": "./handoff.schema.json",
   "schemaVersion": "1.5.0",
   "productId": "citymeter-housingestate",
-  "productVersion": "0.1.1",
+  "productVersion": "0.1.2",
   "updatedOn": "2026-11-18",
   "documentType": "product-brief",
   "datasetCheckedOn": "2026-11-18",
@@ -189,7 +189,7 @@
       "eye": "pitch 75 · fov 24 (lit building, two-point)"
     },
     "fitting": "fitPitched: flat fit, then zoom out until every vertex is inside the padded viewport; country maxZoom 7; a district maxZoom 13 (area-index box); a project maxZoom 17 / minZoom 11",
-    "phone": "model above the open sheet for a project; tiltWhenNear after the reader’s own move"
+    "phone": "a project opens in the model preset above the open sheet, at least at the phone’s building zoom, the middle of its extent at the middle of the free map (0.1.2); tiltWhenNear after the reader’s own move"
   },
   "venueXrayContract": {
     "module": "js/shell/venue-xray.js",
@@ -211,7 +211,7 @@
   "provinceContract": {
     "frames": "data/provinces.geojson",
     "fill": "the measure to zoom 10.5; the selected province filled, the others outline-only",
-    "labels": "chips with the measure to zoom 10; district chips in the chosen province from zoom 7 to 13.5 (at most 40)",
+    "labels": "chips with the measure to zoom 10; district chips in the chosen province from zoom 6 to 13.5 (at most 40, the largest first, never overlapping)",
     "unknown": "none"
   },
   "pictogramContract": {
@@ -384,6 +384,6 @@
     "site": "GitHub Pages from main /root",
     "handoff": "dist/CityMETER-Housing-Estate-Developer-Handoff.zip (START_HERE.md, RELEASE_RECEIPT.json, evidence/, source/)",
     "liveCheck": "npm run verify:live",
-    "cacheTag": "?v=20261118-r2 on every entry file and, through the import map in index.html, on every ES module; the optional data files take the same tag from import.meta.url; bump it with package.json version (tests/release.test.js); icon fonts inside the stylesheets carry ?v=<first 8 hex of their SHA-256> (tests/icons.test.js)"
+    "cacheTag": "?v=20261118-r3 on every entry file and, through the import map in index.html, on every ES module; the optional data files take the same tag from import.meta.url; bump it with package.json version (tests/release.test.js); icon fonts inside the stylesheets carry ?v=<first 8 hex of their SHA-256> (tests/icons.test.js)"
   }
 }

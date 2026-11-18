@@ -1,6 +1,6 @@
 # CityMETER Housing Estate — data method
 
-What the numbers on the page are, where they come from, how they were built and what they are not. Release 0.1.1,
+What the numbers on the page are, where they come from, how they were built and what they are not. Release 0.1.2,
 data read 18 November 2026 (`meta.readOn`). Every figure below is a fixture of this snapshot (tests), never a UI
 constant: the page computes it from the data.
 

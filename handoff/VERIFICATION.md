@@ -1,11 +1,19 @@
 # CityMETER Housing Estate — verification
 
+## Release 0.1.2 — 18 พ.ย. 2569
+
+From the phone check of 0.1.1 (the owner's Chrome, a 390 × 740 frame of the same origin, `?lean=phone`): Supalai Ville Wongwaen–Lamlukka Khlong 7 opened in 3D at zoom 14 with OSM chosen in its extent (30 OSM buildings in the loaded tiles) but none lit — the fit's pitched shift left the estate's middle about 900 m below the middle of the free map, the point the lean ring is drawn round (`viewCenter`), so its buildings were never shaped. Chiang Mai in English: no district chip at the province fit (zoom 6.68; chips started at 7).
+
+- Fixes: on a phone a project opens with the middle of its extent at the middle of the free map above the sheet (`js/app.js#fitSite`); district chips from zoom 6 (the largest first, never overlapping, only in the chosen province).
+- Local: 166 tests pass. Live results follow below once published.
+
 ## Release 0.1.1 — 18 พ.ย. 2569
 
 From the first live walk of 0.1.0 (GitHub Pages at 8db4150, the owner's Chrome, real basemap): an estate opened in a CityMETER unit lit next to nothing. Baan Klang Muang The Edition Srinakarin–Suan Luang (Prawet, “กรอบราว 38 ไร่”): 4,228 CityMETER Building V4 pieces in the focus, 0 of them in the extent; the houses inside it were OpenStreetMap buildings the unit had replaced (the basemap's flat footprints showed through). A sample of 20 of the 139 extents (every seventh): 10 lit no building, 2 one, 5 two to five, one 8, the best 43 and 62.
 
 - Fix (`js/massing.js#countOwn`, `DATA_METHOD.md` §6): the open project's extent is a building unit of its own — CityMETER Building V4 when its buildings standing there number at least 1.15 × the OSM buildings a unit would replace there (the units' rule), else OSM: those OSM buildings stay and the V4 buildings in the extent are left out. Outside the extent the units decide as before. `tests/building-units.test.js` (counts, the decision both ways, a hole in the extent, ids unchanged).
-- Local: 166 tests pass. Live results follow below once published.
+- Local: 166 tests pass.
+- Live (GitHub Pages at 843e961, cache tag r2): `npm run verify:live` 183 ok, 0 failed. Baan Klang Muang The Edition: OSM chosen in the extent (92 OSM buildings, 0 V4), 92 buildings lit. The same 20 extents again: Supalai Ville Wongwaen–Lamlukka Khlong 7 (Pathum Thani) 0 → 130 lit (OSM 122, V4 0); Supalai Bella Rama 2 (Samut Sakhon) keeps 62 (OSM 62 = V4 62 → OSM); the 9 extents that still light nothing hold no building in either source — walked: Baan Klang Muang Vibhavadi–Chaengwattana and Golden Neo Ngamwongwan–Prachachuen show their estate roads only (projects being built).
 
 ## Release 0.1.0 — 18 พ.ย. 2569
 

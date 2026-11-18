@@ -1,4 +1,4 @@
-# CityMETER Housing Estate — Implementation Plan (0.1.1)
+# CityMETER Housing Estate — Implementation Plan (0.1.2)
 
 คู่กับ `implementation-plan.json` (เครื่องตรวจ)
 
