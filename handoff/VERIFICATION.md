@@ -7,6 +7,10 @@ From the English walk of 0.1.3 on citymeter.pages.dev: `window.__citymeterI18n.m
 - Fix (`js/lang-en.js`): the last part of a chip's label, a measure and its verb, reads “…, select to view the province” or “…, select to view the district”; the parts before it already read in English. A district the area index has no English for (Wiang Kao, Khon Kaen, 4029) keeps its Thai name (`js/lang.js`, keepThai).
 - Test (`tests/lang-en.test.js`): every province and district chip of the area index, either measure first, reads with no Thai left but that one name (2,010 labels stayed Thai before the fix).
 - Local: 167 tests pass.
+- Live: `npm run verify:live` at 8b5b6ca (GitHub Pages): 183 ok, 0 failed. citymeter.pages.dev run 44264665464 (workflow_dispatch): Housing Estate at 8b5b6ca, 114 of 114 live checks, the live family check 18 of 18 demos on 0.6.3.
+- English walk on citymeter.pages.dev (cache tag r6, the owner's Chrome): `window.__citymeterI18n.missing` empty at load (77 province chips), with Bangkok and a district chosen, a project, the charts; Khon Kaen in English (5 district chips) empty too.
+- Pickers at 393 px (frames of the same origin, `?lean=phone`): from School in Thai and from University in English, Housing Estate is listed under Land (in English without “In Thai”) and opens `/housingestate/` with the area carried (Watthana; Bangkok), no sideways scroll (393 px).
+- Registry: R01_DATASETS row `research.TH.housing_estate`, `demo_check_note` rewritten in place for 0.1.4 and the family sync (read back).
 
 ## Release 0.1.3 — 18 พ.ย. 2569
 
