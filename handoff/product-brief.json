@@ -1,0 +1,388 @@
+{
+  "$schema": "./handoff.schema.json",
+  "schemaVersion": "1.5.0",
+  "productId": "citymeter-housingestate",
+  "productVersion": "0.1.0",
+  "updatedOn": "2026-11-18",
+  "documentType": "product-brief",
+  "datasetCheckedOn": "2026-11-18",
+  "language": "th",
+  "productName": "CityMETER · Housing Estate",
+  "repository": "https://github.com/montri-th/housingestate",
+  "liveUrl": "https://montri-th.github.io/housingestate/",
+  "productStatement": "PRODUCT_STATEMENT.md",
+  "job": "แปลงจัดสรรกระจุกอยู่ที่ไหน และรอบแปลงมีหมู่บ้านแบบไหน — แล้วเจาะลงถึงอำเภอ รายการจัดสรร โครงการ กรอบพื้นที่และอาคาร หลักฐาน และสถานี",
+  "audiences": [
+    "ทีมพัฒนาโครงการแนวราบที่หาทำเลถัดไป",
+    "เจ้าของที่ดินและนักลงทุนที่ประเมินแปลง",
+    "ผู้ประเมินมูลค่าและสถาบันการเงิน",
+    "ผู้ประกอบการค้าปลีกและบริการที่ตามชุมชนบ้านจัดสรร"
+  ],
+  "journey": [
+    "first Aha (whole country, allocated plots)",
+    "province (districts as chips, projects on the map)",
+    "district (plots by type, rank and share in the province, records, projects)",
+    "project (extent and lit buildings in 3D, labels and price as shown, paired records, legal entities, company reports, station)",
+    "record (plots by type, scope, allocator, DOL address and page)",
+    "developer (every project in the catalogue)",
+    "station (projects within 1 km)",
+    "charts (provinces, plot types, districts) and the record table"
+  ],
+  "basedOn": "CityMETER · University 0.1.5 (montri-th/university @f610edb, citymeter-shell 0.6.2), itself from School 0.6.0 and Hotel: every engine contract (camera, basemap, massing, x-ray, terrain, building units, breadcrumb, partial notice, phone sheet, English) is carried unchanged; the campus extent and its lit buildings become the estate extent and its lit buildings (owner 2026-11-18). This release ships citymeter-shell 0.6.3 (Housing Estate in the dataset picker).",
+  "rowScopes": {
+    "scopeRows": "district rows after the plot-type filter, before the province selection: the base of the national Aha, the province fill, the province chart",
+    "baseRows": "scopeRows narrowed by the selected province: the province Aha, district chips and ranks, the plot-type bars, the district chart, the table",
+    "rows": "projects under house type · search · province: pins, labels, lists; records under the same filters: the table and the district view"
+  },
+  "firstAha": {
+    "scope": "whole country (no province selected); a selected province switches to its districts",
+    "measure": "allocated plots (default) or records",
+    "ranking": "provinces by the measure; at most three, never cutting through a tie, never every province holding the measure (js/area-insight.js#topWithoutTie)",
+    "headlineTemplate": "<pct> ของแปลงจัดสรรทั้งประเทศ อยู่ใน <N จังหวัดนี้> · province: <pct> ของแปลงจัดสรรใน<จังหวัด> อยู่ใน <N อำเภอนี้>",
+    "numerator": "Σ measure of the focused provinces (or districts)",
+    "denominator": "Σ measure of scopeRows (or of the province)",
+    "secondaryFinding": "the same share among house plots only (detached + semi-detached + row) as a second bar with both bases (plots, no type filter); the provinces with no record under the filters by name",
+    "action": "ดูทุกจังหวัดเท่ากัน · เปรียบเทียบจังหวัด (charts) · select a province",
+    "model": "summarizeInsight(units, {metric, province, provinces, nameOf, type})",
+    "filter": "the Aha follows the plot-type filter; house type and search narrow the projects only (tests/insight.test.js)",
+    "defaultSnapshot": {
+      "ids": [
+        "BKK",
+        "PTE",
+        "CBI"
+      ],
+      "value": 1236824,
+      "total": 2689640,
+      "housePlots": {
+        "value": 1101249,
+        "total": 2335133
+      },
+      "records": {
+        "ids": [
+          "BKK",
+          "CBI",
+          "PTE"
+        ],
+        "value": 7910,
+        "total": 19753
+      },
+      "zeroProvinces": 0,
+      "note": "fixtures (tests/insight.test.js), never UI constants"
+    },
+    "fallbacks": [
+      "one item alone is its own finding",
+      "all equal → spread",
+      "no record under the filters → the provinces named as measured zero"
+    ]
+  },
+  "countingUnitContract": {
+    "default": "allocated plots (แปลง, li.supply)",
+    "alternatives": [
+      "records (รายการ, count)"
+    ],
+    "words": {
+      "plots": "แปลงจัดสรร · แปลง",
+      "records": "รายการจัดสรร · รายการ"
+    },
+    "rule": "the map, legend, labels, Aha, ranks and charts read the same measure; a project never carries a figure of its own",
+    "switch": "legend control, ?m=records"
+  },
+  "metricContract": {
+    "areas": "production districts (395 hold a record): chips with the measure in the chosen province, never outlines",
+    "provinces": "Σ measure per province of the records production counts there",
+    "eligibility": "none (totals; tie rule of the Aha)",
+    "combined": "never adds projects to records; a pair is shown as a pair; the house-plot comparison narrows numerator and denominator alike",
+    "ramp": "all 41 LUT samples by rank among the measured nonzero provinces (and among the districts of the chosen province for the chips)"
+  },
+  "coverageContract": {
+    "covered": "19,753 records in 395 districts of all 77 provinces; 1,538 projects (798 pins, 139 extents) from 65 publishers; 373 pairs; 301 stations",
+    "states": {
+      "measuredZero": "a province or district without a record under the filters: outline, no fill, listed by name",
+      "noPoint": "a project without a drawn pin: listed with its developer, district and province, chip “ไม่มีจุดบนแผนที่”",
+      "noExtent": "a project without an extent: the pin and its surroundings, no “กรอบราว”",
+      "fileMissing": "partial notice per optional file (extents, portfolio, records); the measure stays complete"
+    }
+  },
+  "categoricalCueContract": {
+    "registry": "landometer-series-10-v8 (LDS DATAVIZ-05)",
+    "bindBy": "meta.houseTypes[].id → js/cues.js#GROUP_SERIES",
+    "groups": {
+      "detached": 1,
+      "semi_detached": 2,
+      "townhouse": 3,
+      "mixed_low_rise": 4,
+      "shophouse": 5,
+      "home_office": 7,
+      "low_rise_unspecified": 9
+    },
+    "rule": "no star; plot types are parts of the measure, never given a house-type series"
+  },
+  "framesContract": {
+    "index": "data/area-index.json (77 provinces, districts with production codes and English names)",
+    "frames": "data/provinces.geojson only; district outlines are read at build time (a pin’s district), never shipped; districts are chips at their label points",
+    "loading": "with the first paint, beside data/estates.json",
+    "failure": "partial notice (“กรอบจังหวัด”); the panel figures stay complete"
+  },
+  "mapFocusContract": {
+    "principle": "focus + quiet context: detail for the focus only, everything else visible but quiet",
+    "states": {
+      "country": "province fills, Aha provinces outlined, project pins by house type",
+      "province": "the selected province filled, the others outline-only; its districts as chips with the measure; its projects as pins",
+      "district": "framed on its box from the area index (plan, maxZoom 13); its province filled, its projects as pins",
+      "project": "model preset on the extent; the drawn buildings in the extent lit (map.activeLayer); extents of the other projects dashed",
+      "building": "two-point camera; x-ray of the building looked at",
+      "station": "1 km radius, projects within it"
+    },
+    "choropleth": "province fill to zoom 10.5 (li.supply | count, 41 samples); measured zero = outline"
+  },
+  "contextContract": {
+    "rail": "CityMETER · Transit stations (operating: quiet clickable rings; under construction: words only); nearest within 2 km per pin at build time",
+    "distances": "straight lines between reference points"
+  },
+  "contextActionsContract": {
+    "module": "js/ask.js#contextActions",
+    "views": [
+      "site",
+      "company",
+      "district",
+      "record",
+      "building",
+      "station",
+      "overview"
+    ],
+    "ai": "Google Search with a question written for the view (/search?q=)",
+    "maps": "Google Maps search by public names",
+    "streetView": "only with a point",
+    "dataBoundary": "Google’s answers are Google’s: never copied into the data"
+  },
+  "buildingJoinContract": {
+    "buildings": "the focus massing (CityMETER Building V4 or OpenStreetMap per building unit)",
+    "points": "the interior point of each drawn building piece, tested against the open project’s extent (js/extent-buildings.js)",
+    "rule": "a drawn building with a piece inside the extent (outside its holes) is lit whole in map.activeLayer; js/shell/building-join.js#joinBuildings is given no points of its own",
+    "click": "a lit building opens “อาคารในกรอบโครงการ” with “สูงราว N ม.” and the two-point camera",
+    "neverChanges": "plots, records, pairs or the measure; lit buildings are never counted on screen"
+  },
+  "interactionContract": {
+    "mapClicks": "pin → the building being looked at (x-ray) → lit building → station → estate extent → province",
+    "reframe": "every way into a project or a building frames it again",
+    "chips": "a district chip opens the district; a province chip opens the province",
+    "keyboard": "roving tabindex over HTML pins, arrow keys on the measure switch and the chart tabs, visible focus everywhere"
+  },
+  "basemapContract": {
+    "generator": "js/shell/map-style.js (no hosted style URL)",
+    "tiles": "https://tiles.openfreemap.org/planet (OpenMapTiles schema)",
+    "palette": "--basemap-* tokens of assets/theme.css; data colours never set there"
+  },
+  "massingContract": {
+    "cityTier": "basemap building extrusions, quiet, faded with distance from the focus",
+    "focusTier": "rounded footprints from z14 tiles in the focus regions (building, station square, estate extent and its surroundings, camera square), bounded per device budget",
+    "hostTier": "unused",
+    "rounding": "roundingRadiusM(zoom) 3–12 m",
+    "enclosure": "encloseOffsetM keeps the rounded shape around the original outline",
+    "buildingSource": "data/building-units/ (copied from montri-th/university @f610edb: the Hotel units plus the อปท. round the campuses)"
+  },
+  "cameraContract": {
+    "presets": {
+      "plan": "pitch 0 (3D off; country, province and district fits)",
+      "model": "pitch 60 · fov 14 (project framed on its extent and surroundings)",
+      "eye": "pitch 75 · fov 24 (lit building, two-point)"
+    },
+    "fitting": "fitPitched: flat fit, then zoom out until every vertex is inside the padded viewport; country maxZoom 7; a district maxZoom 13 (area-index box); a project maxZoom 17 / minZoom 11",
+    "phone": "model above the open sheet for a project; tiltWhenNear after the reader’s own move"
+  },
+  "venueXrayContract": {
+    "module": "js/shell/venue-xray.js",
+    "layer": "venue-xray before place-quarter",
+    "visibility": "3D only, zoom ≥ 13, the building being looked at"
+  },
+  "breadcrumbContract": {
+    "levels": [
+      "ประเทศไทย",
+      "จังหวัด",
+      "เขต/อำเภอ",
+      "โครงการ"
+    ],
+    "productionPath": "/v3/citymeter/{province}/D/{district}?d=estate",
+    "demoQuery": "?d=estate&at=BKK/D/1012&e=site:<key>",
+    "provinceCodes": "production route codes (base info lv0 abbrEn)",
+    "datasetCode": "estate"
+  },
+  "provinceContract": {
+    "frames": "data/provinces.geojson",
+    "fill": "the measure to zoom 10.5; the selected province filled, the others outline-only",
+    "labels": "chips with the measure to zoom 10; district chips in the chosen province from zoom 7 to 13.5 (at most 40)",
+    "unknown": "none"
+  },
+  "pictogramContract": {
+    "file": "assets/icons/material-pictogram-300.woff2",
+    "sha256": "0c18b9ac3583748ff54cc3f5370edf47b3c0331b92629a26d3a2748cc65ea060",
+    "meanings": "js/navigation.js#PICTOGRAM_CONTRACT: area = แปลงจัดสรร, เขต/อำเภอ and the estate extent · dataset = รายการจัดสรร and the provenance dataset · province = จังหวัด · segment = ประเภทแปลง/ประเภทบ้าน · maps = โครงการบนแผนที่ · building = ผู้พัฒนา and a drawn building · aff = นิติบุคคลและบริษัทแม่ · history = รายงานประจำปีของบริษัท · fee = ราคาเริ่มตามหน้าเว็บ · date · ai · rail · compare · terrain (sea, elevation, relief, forest) · rank · distance · construction",
+    "rule": "decorative (aria-hidden); the text carries the meaning; no star"
+  },
+  "panel": {
+    "modes": [
+      "overview",
+      "province",
+      "unit (district)",
+      "site",
+      "company",
+      "record",
+      "station",
+      "building"
+    ],
+    "actions": [
+      "select-province",
+      "select-unit",
+      "select-site",
+      "select-company",
+      "select-record",
+      "select-station",
+      "select-building",
+      "filter-type",
+      "filter-house",
+      "set-metric",
+      "clear-filter",
+      "clear-focus",
+      "explore-top",
+      "leave-province",
+      "open-charts",
+      "open-table",
+      "back"
+    ],
+    "models": "js/profile-model.js (buildOverview, buildDistrictProfile, buildSiteDetail, buildCompanyProfile, buildRecordProfile, buildStationProfile, buildBuildingProfile, buildSearch)",
+    "provenance": "one line per view: dataset · source · date · boundary, then วิธีนับ (DATA_METHOD.md)",
+    "phoneSheet": "peek · half · full below 761 px in portrait"
+  },
+  "data": {
+    "file": "data/estates.json + data/extents.json + data/portfolio.json + data/records.json",
+    "counts": {
+      "records": 19753,
+      "plots": 2689640,
+      "districts": 395,
+      "provinces": 77,
+      "projects": 1538,
+      "companies": 65,
+      "brands": 391,
+      "pins": 798,
+      "pinsOffMap": 58,
+      "extents": 139,
+      "pairs": 373,
+      "legalRoles": 246,
+      "parents": 221,
+      "issuerFacts": 201,
+      "events": 175,
+      "stations": 301
+    },
+    "checks": "meta.checks (plot types add up; province coverage equal; production lv0 equal)",
+    "registryId": "research.TH.housing_estate",
+    "tabs": "meta.tabs",
+    "checkedOn": "2026-11-18",
+    "readOn": "2026-11-18",
+    "builtOn": "2026-11-18",
+    "method": "DATA_METHOD.md",
+    "build": "scripts/xlsx-to-csv.py → scripts/match-extents.py → scripts/build-data.py"
+  },
+  "englishContract": {
+    "module": "js/lang.js + js/lang-en.js (citymeter-shell i18n)",
+    "names": "provinces and districts from the area index, stations from nameEn, plot and house types, scopes, labels, pin roles, pair levels, legal roles and event classes from the data files; projects, brands, Thai-named publishers, allocators and DOL record names stay Thai",
+    "years": "ค.ศ. in English",
+    "check": "a harvest of every view (window.__citymeterI18n.missing empty) before a release"
+  },
+  "visualSystem": {
+    "lds": "Landometer-Design-System-v0.9.7.md (standalone-0.9.7-r1, v0.9.7-owner.1, color-srgb-10, sha256 d3085cbc…96)",
+    "locationIntelligence": "Location-Intelligence-Profile-for-LDS-v0.9.7.md (location-intelligence-profile-lds-0.9.7-r1, sha256 5d485604…3c): li.supply",
+    "parity": "scripts/check-lds-parity.mjs",
+    "themes": "light and dark; analytical HEX identical on both",
+    "fonts": "Bai Jamjuree · IBM Plex Sans Thai Looped · Arvo · JetBrains Mono (assets/lds/build-kit)"
+  },
+  "invariants": [
+    {
+      "id": "H1",
+      "rule": "plots are the records’ own, counted in the production district and province of the record; never allocated to a project, a pin, an extent or a building"
+    },
+    {
+      "id": "H2",
+      "rule": "records and projects are never added; a pair is shown as a pair of a record and a project, named by how the research team found it; held pairs stay out"
+    },
+    {
+      "id": "H3",
+      "rule": "a project carries no plot figure — never 0"
+    },
+    {
+      "id": "H4",
+      "rule": "a province or district without a record under the filters is a measured zero (outline, no fill) and is listed by name"
+    },
+    {
+      "id": "H5",
+      "rule": "the Aha never cuts through a tie and never focuses every item holding the measure"
+    },
+    {
+      "id": "H6",
+      "rule": "every share shows numerator and denominator; the house-plot comparison shows both bases in each bar"
+    },
+    {
+      "id": "H7",
+      "rule": "labels, starting prices and launches are what the source showed; a price is never compared, averaged or ranked; a label is never a sales status"
+    },
+    {
+      "id": "H8",
+      "rule": "house types bind to LDS series by id with their shape cue; plot types are neutral bars, never a series; no star"
+    },
+    {
+      "id": "H9",
+      "rule": "colour scales use all 41 LDS samples by rank, identical HEX on both themes"
+    },
+    {
+      "id": "H10",
+      "rule": "every panel view ends with exactly one provenance line and carries no caveat"
+    },
+    {
+      "id": "H11",
+      "rule": "no Google Maps coordinates, review statuses, researcher notes, private links, sheet addresses or credentials in the tree"
+    },
+    {
+      "id": "H12",
+      "rule": "an allocator is named only when its name carries a legal-entity form"
+    },
+    {
+      "id": "H13",
+      "rule": "distances are straight lines between reference points"
+    },
+    {
+      "id": "H14",
+      "rule": "lit buildings are the drawn buildings in the open project’s extent, never counted and never the whole focus"
+    }
+  ],
+  "chartContracts": [
+    {
+      "viewKey": "provinces",
+      "title": "จังหวัด",
+      "question": "จังหวัดไหนมีแปลงจัดสรร (หรือรายการ) มากที่สุด",
+      "encoding": "horizontal bars in the map’s colour (same 41-sample ramp), value outside the bar, the other measure under the name",
+      "metric": "plots | records",
+      "scope": "scopeRows (not narrowed by the selected province), top 30"
+    },
+    {
+      "viewKey": "types",
+      "title": "ประเภทแปลง",
+      "question": "แปลงจัดสรรในตัวกรองนี้เป็นแปลงประเภทใด",
+      "encoding": "horizontal bars in a neutral fill (--border-emphasis), records reporting the type (or plots, under the records measure) under the name",
+      "metric": "plots | records",
+      "scope": "baseRows"
+    },
+    {
+      "viewKey": "districts",
+      "title": "เขต/อำเภอ",
+      "question": "อำเภอใดมีแปลงจัดสรรมากที่สุดในตัวกรองนี้",
+      "encoding": "horizontal bars in a neutral fill (--border-emphasis), the province (country view) and the other measure under the name; the selected district pressed",
+      "metric": "plots | records",
+      "scope": "baseRows, top 30"
+    }
+  ],
+  "delivery": {
+    "site": "GitHub Pages from main /root",
+    "handoff": "dist/CityMETER-Housing-Estate-Developer-Handoff.zip (START_HERE.md, RELEASE_RECEIPT.json, evidence/, source/)",
+    "liveCheck": "npm run verify:live",
+    "cacheTag": "?v=20261118-r1 on every entry file and, through the import map in index.html, on every ES module; the optional data files take the same tag from import.meta.url; bump it with package.json version (tests/release.test.js); icon fonts inside the stylesheets carry ?v=<first 8 hex of their SHA-256> (tests/icons.test.js)"
+  }
+}

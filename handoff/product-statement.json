@@ -1,0 +1,169 @@
+{
+  "$schema": "./handoff.schema.json",
+  "schemaVersion": "1.5.0",
+  "productId": "citymeter-housingestate",
+  "productVersion": "0.1.0",
+  "updatedOn": "2026-11-18",
+  "documentType": "product-statement",
+  "dataset_id": "research.TH.housing_estate",
+  "datasetGroup": "Land",
+  "productionDatasetCode": "estate",
+  "language": "th",
+  "liveUrl": "https://montri-th.github.io/housingestate/",
+  "markdown": "PRODUCT_STATEMENT.md",
+  "positioning": {
+    "one_line_highlight": "แผนที่ 3 มิติของหมู่บ้านจัดสรรทั่วไทย ที่บอกว่าแปลงจัดสรรตามรายการของกรมที่ดินกระจุกจังหวัดและอำเภอไหน รอบแปลงมีโครงการของผู้พัฒนาแบบไหน กรอบพื้นที่ใหญ่แค่ไหน พร้อมแหล่งของทุกตัวเลข",
+    "question": "แปลงจัดสรรกระจุกอยู่ที่ไหน และรอบแปลงมีหมู่บ้านแบบไหน",
+    "unique_advantage": "two grains never added (the DOL records of the production snapshot carry the plots and the district they are counted in; the developers’ catalogues carry the pins, extents, labels, prices and evidence), every pair between them named by how it was found, every number with dataset · source · date · boundary, on the same base layer as the other CityMETER datasets",
+    "unique_vs_competitors": "the official records counted by area and the developers’ projects with their extents and evidence in one map, down to the district and the building, where the DOL website shows one record at a time and portals show marketing pages without a count"
+  },
+  "users": {
+    "primary_users": [
+      "ทีมพัฒนาโครงการแนวราบที่หาทำเลถัดไป",
+      "เจ้าของที่ดินและนักลงทุนที่ประเมินแปลง",
+      "ผู้ประเมินมูลค่าและสถาบันการเงิน",
+      "ผู้ประกอบการค้าปลีกและบริการที่ตามชุมชนบ้านจัดสรร"
+    ],
+    "functional_needs": [
+      "แปลงจัดสรรต่อจังหวัดและอำเภอ แยกตามประเภทแปลง",
+      "รายการจัดสรรของอำเภอ ผู้จัดสรร และหน้าเว็บกรมที่ดิน",
+      "โครงการรอบแปลง ผู้พัฒนา ประเภทบ้าน ป้ายและราคาเริ่มตามหน้าเว็บ",
+      "กรอบพื้นที่ของโครงการและอาคารในกรอบ",
+      "นิติบุคคล บริษัทแม่ และรายงานของบริษัท",
+      "ระยะตรงถึงสถานีรถไฟฟ้า"
+    ],
+    "emotional_needs": [
+      "มั่นใจว่าตัวเลขมีที่มา และไม่ได้นับหมู่บ้านซ้ำ",
+      "อธิบายต่อผู้บริหารหรือคณะกรรมการได้ด้วยหลักฐาน"
+    ],
+    "trigger_voice_in_head": [
+      "แถวนี้มีหมู่บ้านเยอะไหม เป็นบ้านแบบไหน",
+      "ใครทำโครงการข้างแปลงนี้ ราคาเริ่มเท่าไร",
+      "อำเภอไหนในจังหวัดนี้มีแปลงจัดสรรมากที่สุด"
+    ],
+    "value_proposition": "คำตอบแรกระดับจังหวัดภายในนาที แล้วเจาะลงถึงอำเภอ รายการ โครงการ และอาคารในกรอบ โดยไม่ปนยอดของรายการกับโครงการ",
+    "evidence": "Hypothesis — user groups from Landometer’s customer segments and the Hotel/School/University work; not validated with external interviews (hypotheses_to_validate)"
+  },
+  "problem": {
+    "statement": "รายการจัดสรรของกรมที่ดินดูได้ทีละรายการ บัญชีโครงการอยู่บนเว็บของผู้พัฒนาแต่ละราย และไม่มีที่ใดนับแปลงจัดสรรตามพื้นที่ให้เทียบได้พร้อมโครงการรอบแปลงและหลักฐาน",
+    "urgency": "การซื้อที่ดินและเปิดโครงการแนวราบเป็นการลงทุนที่ย้ายไม่ได้ และตัดสินใจตามรอบการหาทำเล (Inference)",
+    "severity": "การอ่านผิดที่พบบ่อย (Inference): นับรายการเป็นจำนวนหมู่บ้าน อ่านแปลงจัดสรรเป็นบ้านสร้างเสร็จหรือยอดขาย อ่านป้ายบนหน้าเว็บเป็นสถานะการขาย และถือพิกัดกึ่งกลางอำเภอเป็นที่ตั้งโครงการ"
+  },
+  "competitor_landscape": {
+    "present_competitors": [
+      {
+        "name": "เว็บไซต์กรมที่ดิน (โครงการจัดสรรที่ดิน)",
+        "how_users_use_it": "ค้นทีละรายการ",
+        "strength": "แหล่งทางการ",
+        "gap": "ไม่รวมตามพื้นที่ ไม่มีแผนที่ ไม่บอกชื่อทางการตลาดหรือผู้พัฒนา"
+      },
+      {
+        "name": "เว็บของผู้พัฒนาและพอร์ทัลอสังหาริมทรัพย์",
+        "how_users_use_it": "ดูโครงการ ราคา และแบบบ้าน",
+        "strength": "ข้อมูลการตลาดล่าสุด",
+        "gap": "เฉพาะรายที่ลงประกาศ ไม่เชื่อมกับรายการของรัฐ ไม่นับแปลง"
+      },
+      {
+        "name": "รายงานวิจัยตลาดของบริษัทที่ปรึกษา",
+        "how_users_use_it": "อ่านภาพรวมรายทำเล",
+        "strength": "วิเคราะห์ลึก",
+        "gap": "ราคาแพง ไม่ถึงรายโครงการ ตรวจย้อนแหล่งไม่ได้ (Inference)"
+      },
+      {
+        "name": "CityMETER production (?d=estate)",
+        "how_users_use_it": "ดูชั้นข้อมูลโครงการจัดสรรตามจังหวัดและอำเภอ",
+        "strength": "ชุดรายการเดียวกับเดโมนี้",
+        "gap": "จุดเป็นกึ่งกลางอำเภอ ไม่มีโครงการของผู้พัฒนา ไม่มีกรอบพื้นที่"
+      },
+      {
+        "name": "แผนที่ทั่วไป (เช่น Google Maps)",
+        "how_users_use_it": "หาที่ตั้งและภาพหมู่บ้าน",
+        "strength": "ใช้ง่าย",
+        "gap": "ไม่มียอดแปลง ไม่บอกที่มาของขอบเขต"
+      }
+    ],
+    "aspirational_competitors": [
+      "HM Land Registry price and title services (สหราชอาณาจักร) — ระเบียนทางการพร้อมนิยามและแผนที่",
+      "Zonda / Meyers Research (สหรัฐอเมริกา) — ฐานข้อมูลโครงการบ้านใหม่รายโครงการพร้อมสถานะ"
+    ],
+    "expected_quality_bar": "คำตอบแรกภายในหนึ่งนาทีบนมือถือ ทุกตัวเลขบอกชุดข้อมูล แหล่ง วันที่ และขอบเขต ไม่ปนสองชั้นข้อมูล ไม่มีคำเตือนบนหน้าจอ"
+  },
+  "winning_strategy": [
+    "คำถามเดียว คำตอบแรกทันที: สัดส่วนของจังหวัดที่แปลงจัดสรรกระจุก พร้อมตัวตั้ง ตัวหาร และแท่งเฉพาะแปลงบ้าน",
+    "ลงถึงอำเภอในคลิกเดียว: ชิปอำเภอบนแผนที่ อันดับและสัดส่วนในจังหวัด รายการจัดสรรของอำเภอ",
+    "ความซื่อตรงของตัวเลขเป็นคุณสมบัติของผลิตภัณฑ์: รายการกับโครงการไม่บวกกัน ทุกคู่บอกวิธีจับคู่ ป้ายและราคาเป็นสิ่งที่หน้าเว็บแสดง",
+    "ชั้นฐานเดียวกับชุดข้อมูลอื่นของ CityMETER: สถานีราง อาคาร ภูมิประเทศ และเมนูชุดข้อมูลที่เปิดจังหวัดเดียวกัน",
+    "พร้อมสำหรับนักพัฒนาและ agent: โค้ดเปิด ข้อมูล JSON พร้อมนิยาม handoff และ llms.txt ไทยและอังกฤษ"
+  ],
+  "firstFinding": {
+    "evidence": "Observed fact (data/estates.json, release 0.1.0; fixtures in tests/insight.test.js, recomputed by the page)",
+    "plots": "46% ของแปลงจัดสรรทั้งประเทศ (1,236,824 จาก 2,689,640 แปลง) อยู่ในกรุงเทพมหานคร ปทุมธานี ชลบุรี",
+    "housePlots": "เฉพาะแปลงบ้าน (บ้านเดี่ยว · บ้านแฝด · บ้านแถว): 47% (1,101,249 จาก 2,335,133 แปลง)",
+    "bangkok": "24% ของแปลงในกรุงเทพมหานคร (127,566 จาก 539,167) อยู่ในบางขุนเทียน ประเวศ สายไหม",
+    "chiangMai": "66% ของแปลงในเชียงใหม่ (68,925 จาก 104,635) อยู่ใน อ.เมืองเชียงใหม่ สันทราย สันกำแพง",
+    "records": "40% ของรายการ (7,910 จาก 19,753) อยู่ในกรุงเทพมหานคร ชลบุรี ปทุมธานี",
+    "zero": "ทุกจังหวัดมีรายการใน snapshot นี้; ตัวกรองอาคารพาณิชย์: 4 จังหวัดไม่มีแปลงประเภทนี้"
+  },
+  "data_transparency": {
+    "unit": "allocated plots as the DOL website allocation records of the CityMETER production snapshot report them (the selected total where the plots by type add up to it), summed per production district and province; records on the switch",
+    "sources": [
+      "research master “CityMETER Housing Estate Thailand — Research Master 2026-11-18” (not published)",
+      "CityMETER production estate layer (estate/info/lv0 receipt 2026-11-18)",
+      "Department of Lands website pages (linked, not copied)",
+      "developers’ own pages and catalogues",
+      "listed companies’ notices and annual reports",
+      "OpenStreetMap (ODbL)",
+      "CityMETER · Transit"
+    ],
+    "checkedOn": "2026-11-18",
+    "readOn": "2026-11-18",
+    "builtOn": "2026-11-18",
+    "method": "DATA_METHOD.md",
+    "tabs": "meta.tabs (SHA-256 of each tab of the owner’s export)"
+  },
+  "known_limitations": [
+    "a record is a DOL website registration, not a village: one estate can hold several records (phases)",
+    "plots are what the records report, not finished houses, households or sales; 13 held totals and 58 records without a total are not counted in the plots",
+    "the district and province are production’s query boundary for the record, not its address",
+    "1,538 catalogue entries from 65 publishers, not a census of estates; 798 with a pin (58 Google Maps pins kept off the map)",
+    "extents are approximate OpenStreetMap areas for 139 projects, not deeds or legal boundaries",
+    "labels, starting prices and launches are what the page showed when the research team read it",
+    "373 project–record pairs shown; 321 pairs the research team still holds are not shown",
+    "no English names for projects, brands, Thai-named publishers, allocators or DOL records in the master",
+    "72 pins (12 extents) stand outside the evaluated CityMETER building units: buildings there come from OpenStreetMap"
+  ],
+  "claimBoundary": {
+    "canSay": [
+      "N% of the allocated plots the records report are in these provinces (numerator, denominator)",
+      "this district holds N plots of this type in N records of the snapshot",
+      "the research team paired this project with that record, by this rule",
+      "the developer’s page showed this label and starting price when read",
+      "this project lies N m (straight line) from that operating station"
+    ],
+    "cannotSay": [
+      "how many villages, houses, households or residents an area has",
+      "sales, absorption, demand or a market size",
+      "a project’s sales status or current price",
+      "a legal boundary, a land size or ownership",
+      "a quality rank of a developer or a project",
+      "walking time or catchment"
+    ]
+  },
+  "hypotheses_to_validate": [
+    {
+      "hypothesis": "H1 land and development teams use district chips + project extents to shortlist survey areas faster",
+      "test": "5 teams pick 3 survey areas with the demo and with their current method",
+      "criterion": "time down by at least 50%, the choices confirmed by the team afterwards"
+    },
+    {
+      "hypothesis": "H2 the project–record pairs help appraisers size a project",
+      "test": "3 appraisers check 30 pairs",
+      "criterion": "at least 90% of the shown pairs judged correct"
+    },
+    {
+      "hypothesis": "H3 readers do not read a record as a village",
+      "test": "ask 10 readers after a district view",
+      "criterion": "at least 8 of 10 explain the difference correctly"
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+ "counts": {
+  "records": 19753,
+  "plots": 2689640,
+  "rawPlots": 2689950,
+  "heldPlotRecords": 13,
+  "namelessRecords": 2662,
+  "juristicAllocators": 8532,
+  "recordsWithoutShownAllocator": 2961,
+  "detailChecked": 5226,
+  "districts": 395,
+  "projects": 1538,
+  "aliases": 7,
+  "defaultPins": 856,
+  "drawnPins": 798,
+  "pinsOffMap": {
+   "google": 58
+  },
+  "pairs": {
+   "held": 321,
+   "name": 346,
+   "parcel": 6,
+   "address": 20,
+   "accepted": 1
+  },
+  "events": 175,
+  "legalRoles": 246,
+  "parents": 221,
+  "issuerFacts": 201,
+  "extents": 139
+ },
+ "checks": {
+  "plotTypesSumToPlots": true,
+  "heldRecords": [
+   "827042948268036096",
+   "827042952021938176",
+   "827043152211873792",
+   "827043578789367808",
+   "827043591208701952",
+   "827043593955971072",
+   "827043593997914112",
+   "827043594094383104",
+   "827043612595458048",
+   "827043613128134656",
+   "827043613383987200",
+   "827043614927491072",
+   "827043615573413888"
+  ],
+  "provinceCoverageEqual": true,
+  "productionLv0Equal": {
+   "url": "https://landometer.com/api/v2/citymeter-v3/estate/info/lv0",
+   "sha256": "7063ca7784b3725c4ada494860b89ba1ad6d35584984230bfd0262bceac22d4b",
+   "retrievedAt": "2026-11-18T05:39:11+00:00",
+   "records": 19753,
+   "rawPlots": 2689950
+  }
+ },
+ "notes": [],
+ "sizes": {
+  "estates.json": 463789,
+  "records.json": 2732015,
+  "portfolio.json": 583857,
+  "extents.json": 100987
+ }
+}
