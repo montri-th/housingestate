@@ -9,6 +9,9 @@ Owner 2026-11-18 15:28, VERBATIM: “แล้วก็ไม่เห็น จ
 - Check: for the 49 pairs where both the record and its paired project have an extent, both are the same OpenStreetMap area. The project of the owner's screenshot (บ้านกลางเมือง CLASSE รัชดา - ลาดพร้าว) stands in no OSM residential area (the nearest, 392,405 m², is 225 m away): it keeps its pin alone.
 - Page: an open record draws its extent in the selection stroke and lights the drawn buildings in it; its panel says “กรอบราว N ไร่”; a project without its own extent takes its paired record's (63 projects); OpenStreetMap joins the provenance.
 - Local: 175 tests pass. Headless Chrome (no basemap there): a record with its own extent shows OpenStreetMap in its provenance.
+- Live: `npm run verify:live` at 9599597 (GitHub Pages): 186 ok, 0 failed (one transient 503 on the first pass). citymeter.pages.dev run 44280522532 (workflow_dispatch): Housing Estate at 9599597, 114 of 114 live checks, the family check 18 of 18 demos on 0.6.3.
+- Walk on citymeter.pages.dev (the owner's Chrome, cache tag r8): the record เดอะแพลนท์ ซิตี้ ลาดพร้าว 71 (by name) opens with its extent in the selection stroke and 35 buildings lit (CityMETER Building V4 35, OpenStreetMap 0 in the extent), “กรอบราว 18 ไร่”, OpenStreetMap in the provenance; in English “Extent about 18 rai” and `window.__citymeterI18n.missing` empty; at 393 px (a frame of the same origin) the same, no sideways scroll. The project MODEN บางนา - ศรีนครินทร์ (no extent of its own) takes its paired record's area, named โมเดน บางนา - ศรีนครินทร์ in OpenStreetMap, its pin inside it: “กรอบราว 40 ไร่”, 8 buildings lit — the building layers hold only 8 houses in the 40 rai of an estate opened in 2565.
+- Registry: R01_DATASETS row `research.TH.housing_estate`, `demo_check_note` rewritten in place for 0.3.0 (read back, the same 729 characters).
 
 ## Release 0.2.0 — 18 พ.ย. 2569
 
