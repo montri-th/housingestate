@@ -1,5 +1,15 @@
 # CityMETER Housing Estate — verification
 
+## Release 0.2.0 — 18 พ.ย. 2569
+
+Owner 2026-11-18 15:28 (on citymeter.pages.dev), VERBATIM: “ทำไมไม่มีหมู่บ้านใน production ที่ทำไว้แล้ว มี coordinate น่าจะครบแล้ว”.
+
+- Data: `scripts/fetch-record-points.py` read production's estate layer per district at zoom 11 (395 districts, 2,861 tiles, 713 with points, 2026-11-18 08:48 UTC); `scripts/build-record-points.py` wrote `data/record-points.json`: 19,753 of 19,753 records with a point, each inside its district's box, 10,987 distinct points (7,714 records alone, 12,039 sharing, up to 102 at one point). A second decode (a vector-tile library, independent of the build's reader) gave the same points within 1.1 m.
+- Quality (DATA_METHOD.md §2a): for the research team's 228 pairs with both points, production's point lies a median 23 m from the project's pin (184 within 300 m); the research master's `district_centroid_proxy` label is production's schema, not the points.
+- Page: every record at its point (`js/record-points.js`, one bullseye per point with its count, names from zoom 14.5); an open record framed on its point with its buildings round it and a paired project's extent lit; the record panel names the other records at its point; the legend's “รายการจัดสรร”; English for every new string.
+- Not built yet: a record's own extent (its point × OpenStreetMap residential areas) — OpenStreetMap is out of reach of the build workspace.
+- Local: 171 tests pass. Headless Chrome on the local server (no basemap: its hosts are out of reach there): a record of a 17-record point opens with “จุดตาม CityMETER production · จุดเดียวกับอีก 16 รายการ”, 16 records listed, the provenance “จุดบนแผนที่ CityMETER 18 พ.ย. 2569”, the legend item shown once the points are in.
+
 ## Release 0.1.4 — 18 พ.ย. 2569
 
 From the English walk of 0.1.3 on citymeter.pages.dev: `window.__citymeterI18n.missing` held the accessible names of every map chip — the 77 province chips at load and the 47 district chips of Bangkok once it was chosen (“เขตวัฒนา · 254 แปลง · 11 รายการ กดเพื่อดูเขตหรืออำเภอ”: the chip's title, then its verb). Every other view of the walk (district, record, project, company, charts, table) added nothing.

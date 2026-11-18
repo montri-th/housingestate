@@ -16,12 +16,13 @@ import {contextActions} from '../js/ask.js';
 import {renderInsightChart} from '../js/charts.js';
 import {unitWords, provinces, provinceByCode, siteOrder, recordOrder, hasPoint, productionLink, filterSites} from '../js/model.js';
 import {GROUP_SERIES, CUES} from '../js/cues.js';
+import {recordsAtPoint} from '../js/record-points.js';
 
 const text = html => html.replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
 const nameOf = c => provinceByCode(c)?.th || c;
 
 function views() {
-  const {data, index, records, portfolio, extents} = load();
+  const {data, index, records, portfolio, extents, points} = load();
   const ctx = {meta: data.meta, portfolioMeta: portfolio.meta, unit: unitWords('plots'), index, osmDate: '2026-11-10'};
   const out = {};
   const national = buildOverview(data.units, data.sites, {houseTypes: data.types, allUnits: data.units, nameOf, stations: data.stations});
@@ -44,10 +45,13 @@ function views() {
   out.recordNameless = renderRecord(buildRecordProfile(nameless, {data}), ctx);
   const held = records.records.find(r => r.held);
   out.recordHeld = renderRecord(buildRecordProfile(held, {data}), ctx);
+  // A record at a point production shares with more records than the list shows at once (0.2.0).
+  const shared = records.records.find(r => recordsAtPoint(points, r).length > 13 && r.name);
+  out.recordShared = renderRecord(buildRecordProfile(shared, {data, atPoint: recordsAtPoint(points, shared), pointsMeta: points.meta}), ctx);
   const near = data.sites.find(s => s.rail);
   out.station = renderStation(buildStationProfile(near.rail.station, {sites: data.sites}), ctx);
   out.building = renderBuilding(buildBuildingProfile({key: 'osm:1', kind: 'osm', height: 9, site: paired}), ctx);
-  return {out, data, paired, plain, district, record, nameless, held, records, ctx, index};
+  return {out, data, paired, plain, district, record, nameless, held, shared, records, points, ctx, index};
 }
 
 test('every panel view ends with one provenance line — dataset · source · date · boundary, then the method — and carries no caveat on screen', () => {
@@ -228,4 +232,22 @@ test('charts: provinces in the map colour, plot types, districts ranked — a cl
     renderInsightChart({elementId: 'chart', view: 'districts', units: data.units.filter(u => u.province === 'CMI'), allUnits: data.units, unit: unitWords('records'), province: 'CMI', metric: 'records'});
     assert.match(el.innerHTML, /อำเภอที่มีรายการจัดสรรมากที่สุด/);
   } finally { globalThis.document = doc; }
+});
+
+test('a record names its production point and every other record production put there (0.2.0)', () => {
+  const {out, shared, points, record} = views();
+  const others = recordsAtPoint(points, shared);
+  const t = text(out.recordShared);
+  assert.ok(t.includes(`จุดตาม CityMETER production · จุดเดียวกับอีก ${others.length.toLocaleString('th-TH')} รายการ`), 'the point line says how many records share it');
+  assert.ok(t.includes('รายการที่จุดเดียวกัน'), 'the shared records have their section');
+  const ids = [...out.recordShared.matchAll(/data-action="select-record" data-id="(\d+)"/g)].map(m => m[1]);
+  assert.deepEqual(ids, others.map(r => r.id), 'every other record at the point, in reading order, each opens on its own');
+  assert.ok(!ids.includes(shared.id), 'never the record itself');
+  assert.ok(out.recordShared.includes('<details class="more-records">'), 'beyond 12 rows the rest fold');
+  assert.ok(t.includes('จุดบนแผนที่ CityMETER 18 พ.ย. 2569'), 'the provenance names the points and the day they were read');
+  // A record seen without the points file: no point line, no shared section, no points in the provenance.
+  const plain = text(out.record);
+  assert.ok(plain.includes('จุดตาม CityMETER production'), 'a record with a point says where its point comes from');
+  assert.ok(!plain.includes('รายการที่จุดเดียวกัน') && !plain.includes('จุดบนแผนที่'), 'no shared list and no points source without the points meta');
+  assert.ok(Number.isFinite(record.lon) && Number.isFinite(record.lat), 'the loader attaches the point');
 });

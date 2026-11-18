@@ -27,8 +27,9 @@ TWO GRAINS, NEVER ADDED TO EACH OTHER (26_HANDOFF_QA; DATA_METHOD.md §2)
   record  = one DOL website record of the production snapshot (23_NATIONAL_MASTER, 19,753 rows): the plots the record
             reports (selected_reported_plot_total, by type from 12_PRODUCTION_SOURCE), the province and district of the
             production boundary it is counted in. A record is a registration on the DOL website, not a village: two
-            phases are two records, and records are never merged. Records carry no point: production's coordinate is a
-            district centroid (source_geometry_role) and is never drawn as a project.
+            phases are two records, and records are never merged. The research master labels the role of production's
+            coordinate a district centroid proxy (source_geometry_role, checked here, never copied); the point of each
+            record comes from production itself (scripts/build-record-points.py, data/record-points.json, 0.2.0).
   project = one portfolio entry the research team collected from a publisher's catalogue (01_PROJECTS, 1,538 rows):
             name, brand, publisher, house type, the labels the source shows, and — for 856 entries — a reference pin
             the research team selected (27_MAP_REFERENCES, “แสดงในชั้นหมุดอ้างอิงเริ่มต้น” TRUE). A project never adds

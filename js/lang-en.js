@@ -74,6 +74,12 @@ export default {
     'ข้อค้นพบแรก': 'First finding',
     'กดเพื่อดูจังหวัด': 'select to view the province',
     'กดเพื่อดูเขตหรืออำเภอ': 'select to view the district',
+    // Records at their production points (0.2.0)
+    'จุดตาม CityMETER production': 'Point from CityMETER production',
+    'จุดที่ CityMETER production วางรายการนี้บนแผนที่': 'Where CityMETER production places this record on its map',
+    'รายการที่จุดเดียวกัน': 'Records at the same point',
+    '1 จุด = จุดที่ CityMETER production วางรายการจัดสรรของกรมที่ดิน': '1 point = where CityMETER production places a DOL allocation record',
+    'ตัวเลขข้างจุด = จำนวนรายการที่จุดเดียวกัน': 'number beside a point = the records at that point',
     'อาคารที่เปิด': 'Selected building',
     'อาคารในกรอบโครงการ': 'Buildings in the project extent',
     'อาคารในกรอบโครงการที่เปิด': 'Buildings in the extent of the open project',
@@ -373,6 +379,9 @@ export default {
     [/^จาก (.+)$/, (m, t) => { const x = t.part(m[1]); return x == null ? null : `from ${x}`; }],
     [re('CityMETER Transit (.+)'), (m, t) => `CityMETER Transit ${t.date(m[1]) || m[1]}`],
     [re('CityMETER (\\d.+)'), (m, t) => `CityMETER ${t.date(m[1]) || m[1]}`],
+    [re('จุดบนแผนที่ CityMETER (\\d.+)'), (m, t) => `CityMETER map points ${t.date(m[1]) || m[1]}`],
+    [re(`จุดเดียวกับอีก ${N} รายการ`), (m, t) => `the same point as ${m[1]} other ${t.plural(m[1], 'record', 'records')}`],
+    [re(`อีก ${N} รายการ`), (m, t) => `${m[1]} more ${t.plural(m[1], 'record', 'records')}`],
     [/^OSM (.+)$/, (m, t) => `OSM ${t.date(m[1])}`],
     // The Aha
     [re(`${N} จังหวัดนี้`), (m) => (m[1] === '1' ? 'this province' : `these ${m[1]} provinces`)],

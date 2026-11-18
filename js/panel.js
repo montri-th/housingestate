@@ -96,9 +96,11 @@ export const recordName = r => r.name || r.gov || 'ไม่มีชื่อ�
  * `data-prov`, its word for screen readers), then the method link. The researched catalogues, the companies' own
  * notices and reports, OpenStreetMap, rail and terrain join the source part when the view shows them.
  */
-export function provenance(ctx = {}, boundary = '', {records = true, projects = false, official = false, osm = false, rail = false, terrain = false} = {}) {
+export function provenance(ctx = {}, boundary = '', {records = true, projects = false, official = false, osm = false, rail = false, terrain = false, points = ''} = {}) {
   const meta = ctx.meta || {};
   const sources = [records ? `ระเบียนจัดสรรที่ดิน กรมที่ดิน · CityMETER ${thaiDate(meta.readOn || '')}`.trim() : '', projects ? 'บัญชีโครงการของผู้พัฒนา' : '',
+    // The points production draws for the records (data/record-points.json, 0.2.0), with the day they were read.
+    points ? `จุดบนแผนที่ CityMETER ${thaiDate(points)}`.trim() : '',
     official ? 'ประกาศและรายงานของบริษัท' : '', osm ? 'OpenStreetMap' : '',
     rail ? `CityMETER Transit ${thaiDate(meta.context?.rail?.asOf || '')}`.trim() : '',
     terrain ? `SRTM 30 ม. (2543)${ctx.osmDate ? ` · OSM ${thaiDate(ctx.osmDate)}` : ''}` : ''].filter(Boolean);
@@ -492,6 +494,11 @@ export function renderRecord(p, ctx = {}) {
   const bkk = r.dolAddress?.[0] === 'กรุงเทพมหานคร';
   const address = r.dolAddress ? [r.dolAddress[2] ? `${bkk ? 'แขวง' : 'ตำบล'}${r.dolAddress[2]}` : '', r.dolAddress[1] ? `${bkk ? 'เขต' : 'อำเภอ'}${r.dolAddress[1]}` : '', r.dolAddress[0]].filter(Boolean).join(' · ') : '';
   const words = meta.pairs || {};
+  // The other records production put at the same point (0.2.0): separate records, each opens on its own.
+  const SHARED_ROWS = 12;
+  const sharedRows = p.atPoint || [];
+  const shared = sharedRows.length ? `<section class="panel-section"><div class="section-heading">${heading('maps', 'รายการที่จุดเดียวกัน')}<span class="hint">${num(sharedRows.length)} รายการ</span></div>
+    ${recordList(sharedRows.slice(0, SHARED_ROWS), {index})}${sharedRows.length > SHARED_ROWS ? `<details class="more-records"><summary>อีก ${num(sharedRows.length - SHARED_ROWS)} รายการ</summary>${recordList(sharedRows.slice(SHARED_ROWS), {index})}</details>` : ''}</section>` : '';
   const pairs = p.pairs.length ? `<section class="panel-section"><div class="section-heading">${heading('maps', 'โครงการที่จับคู่')}<span class="hint" title="โครงการที่ทีมวิจัยจับคู่กับรายการนี้">${num(p.pairs.length)} โครงการ</span></div>
     <ul class="outlet-list">${p.pairs.map(x => `<li><button type="button" class="brand-row" data-action="select-site" data-id="${esc(x.site.id)}">${cueMarkup(x.site.series, {className: 'row-cue'})}<span class="row-text"><strong>${esc(x.site.name)}</strong><span class="row-meta">${esc([x.site.company?.name, words[x.level]?.th].filter(Boolean).join(' · '))}</span></span></button></li>`).join('')}</ul></section>` : '';
   return `<section class="detail-head store">
@@ -503,6 +510,7 @@ export function renderRecord(p, ctx = {}) {
       <div class="metrics compact">${plots}${scope ? metricTile(scope, 'ขอบเขตแปลง', 'segment') : ''}</div>
       <div class="fact-chips">${r.district && p.unit ? `<button type="button" class="fact-chip" data-action="select-unit" data-id="${esc(r.district)}" title="ขอบเขตที่ CityMETER นับรายการนี้">${pic('area')}${esc(place)}</button>` : `<span class="fact-chip">${pic('area')}${esc(place)}</span>`}</div>
       ${address ? `<p class="fact-line" title="ที่ตั้งตามหน้าเว็บไซต์กรมที่ดิน">${pic('maps', 'fact-icon')}${esc(address)}</p>` : ''}
+      ${p.point ? `<p class="fact-line" title="จุดที่ CityMETER production วางรายการนี้บนแผนที่">${pic('maps', 'fact-icon')}จุดตาม CityMETER production${p.atPoint.length ? ` · จุดเดียวกับอีก ${num(p.atPoint.length)} รายการ` : ''}</p>` : ''}
       ${names.length ? `<dl class="facts compact-facts">${names.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>` : ''}
       ${actionBar({kind: 'record', record: {name: r.name || r.gov || r.external, allocator: r.allocator}, area: {place: districtName(area, r.province), province: provinceName(r.province)}})}
       <div class="detail-actions">${link(dolLink(r.id), 'หน้าเว็บกรมที่ดิน', 'btn quiet source-link')}${link(productionLink({province: r.province, district: r.district}), 'ดูใน CityMETER', 'btn quiet source-link')}</div>
@@ -510,8 +518,8 @@ export function renderRecord(p, ctx = {}) {
         <dl class="facts"><dt>รหัสหน้าเว็บ</dt><dd><span class="hint data-number">${esc(r.id)}</span></dd><dt>ตรวจ</dt><dd>${esc(thaiDate(meta.readOn || ''))}</dd></dl>
       </details>
     </section>
-    ${types}${pairs}
-    ${provenance(ctx, `${recordName(r)} · ${place}`, {projects: p.pairs.length > 0})}`;
+    ${types}${pairs}${shared}
+    ${provenance(ctx, `${recordName(r)} · ${place}`, {projects: p.pairs.length > 0, points: p.point ? String(p.pointsMeta?.readAt || '').slice(0, 10) : ''})}`;
 }
 
 /* ---------- Station (CityMETER · Transit) ---------- */

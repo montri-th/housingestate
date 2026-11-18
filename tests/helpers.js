@@ -6,6 +6,7 @@ import {dirname, join} from 'node:path';
 import {decodeDataset, decodeRecords, setProvinces} from '../js/model.js';
 import {buildAreaIndex} from '../js/areas.js';
 import {decodeExtents} from '../js/extents.js';
+import {decodeRecordPoints} from '../js/record-points.js';
 
 export const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const cache = new Map();
@@ -24,10 +25,13 @@ export function load() {
     const data = decodeDataset(raw, index);
     const recordsRaw = readJSON('data/records.json');
     const records = decodeRecords(recordsRaw, data);
+    // The production point of every record (data/record-points.json), attached as the browser does once both are in.
+    const pointsRaw = readJSON('data/record-points.json');
+    const points = decodeRecordPoints(pointsRaw, records);
     const extentsRaw = readJSON('data/extents.json');
     const extents = decodeExtents(extentsRaw);
     const portfolio = readJSON('data/portfolio.json');
-    loaded = {raw, data, index, indexJSON, provincesGeo, recordsRaw, records, extentsRaw, extents, portfolio};
+    loaded = {raw, data, index, indexJSON, provincesGeo, recordsRaw, records, pointsRaw, points, extentsRaw, extents, portfolio};
   }
   return loaded;
 }

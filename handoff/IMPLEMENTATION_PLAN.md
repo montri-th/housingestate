@@ -1,4 +1,4 @@
-# CityMETER Housing Estate — Implementation Plan (0.1.4)
+# CityMETER Housing Estate — Implementation Plan (0.2.0)
 
 คู่กับ `implementation-plan.json` (เครื่องตรวจ)
 
@@ -16,6 +16,7 @@ Static site บน GitHub Pages — ES modules ผ่าน import map (ทุ�
 | `js/profile-model.js` | model ของ overview อำเภอ โครงการ ผู้พัฒนา รายการ สถานี อาคาร และผลค้นหา |
 | `js/panel.js` · `js/charts.js` | แผงอ่าน (HTML) และกราฟ (HTML ไม่ใช้ไลบรารี) |
 | `js/pins.js` · `js/labels.js` · `js/stations.js` | หมุด ชื่อกลางจอ สถานี |
+| `js/record-points.js` | ถอด `data/record-points.json` จุดของรายการตาม CityMETER production บนแผนที่ (หนึ่งเครื่องหมายต่อจุด พร้อมจำนวนรายการ) และรายการที่จุดเดียวกัน |
 | `js/massing.js` · `js/regions.js` · `js/shell/*` | มวลอาคาร x-ray พื้นที่วาดอาคาร กล้อง ภูมิประเทศ หน่วยอาคาร header URL i18n (citymeter-shell 0.6.3) |
 | `js/scales.js` · `js/cues.js` | สเกล li.supply และ count ครบ 41 ระดับ · ประเภทบ้าน → series และรูปทรง |
 | `js/lang.js` · `js/lang-en.js` | ภาษาอังกฤษ |

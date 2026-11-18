@@ -1,6 +1,6 @@
 # CityMETER Housing Estate — data method
 
-What the numbers on the page are, where they come from, how they were built and what they are not. Release 0.1.4,
+What the numbers on the page are, where they come from, how they were built and what they are not. Release 0.2.0,
 data read 18 November 2026 (`meta.readOn`). Every figure below is a fixture of this snapshot (tests), never a UI
 constant: the page computes it from the data.
 
@@ -21,8 +21,8 @@ constant: the page computes it from the data.
 **Records** — one DOL website allocation record of the CityMETER production snapshot (19,753). A record is a
 registration on the DOL website, not a village: one estate can hold several records (phases, zones), and records are
 never merged. A record carries the plots it reports, by type, and the production district and province it is counted in
-(production's query boundary, not an address). It has no point: production's coordinate is a district centroid and is
-never drawn as a project.
+(production's query boundary, not an address), and the point CityMETER production draws for it (§2a). A record is drawn
+as a record, never as a project.
 
 **Projects** — one entry of a developer's own catalogue the research team collected (1,538, from 65 publishers and 391
 brands). A project carries its name, brand, publisher, house type, the labels and starting price the page showed, the
@@ -33,6 +33,32 @@ A project and a record are **paired** only as the research team paired them (`24
 named by how it was found — confirmed by the research team (1), name, developer and address agree (20), name and parcel
 agree (6), name and publisher agree (346). The 321 pairs the research team still holds stay out. A pair is shown as a
 pair of a record and a project, never as one place or as the project's size.
+
+## 2a. Where a record is drawn (release 0.2.0)
+
+Owner 2026-11-18 15:28, VERBATIM: “ทำไมไม่มีหมู่บ้านใน production ที่ทำไว้แล้ว มี coordinate น่าจะครบแล้ว”.
+
+- **Source.** CityMETER production's estate layer (`layer-estate-poi`): the point production draws for every DOL record,
+  read from its public tiles, one district at a time (`…/estate/info/estate/{z}/{x}/{y}?inTileType=DISTRICT&inTileId=…`)
+  at zoom 11, where a tile unit is about 4.8 m (`scripts/fetch-record-points.py`, `scripts/build-record-points.py`;
+  2,861 tiles read 2026-11-18 08:48 UTC, their SHA-256 in one receipt hash, `data/record-points.json` `meta`). Every one
+  of the 19,753 records has a point; each lies in the box of the production district the record is counted in.
+- **What the points are.** 10,987 distinct points: 7,714 records stand alone at theirs; 12,039 share a point with
+  other records (two phases of one estate, or records production put at one place), up to 102 records at one point.
+  The research master labels the role of production's coordinate `district_centroid_proxy` (from production's
+  schema); the points themselves are mostly not centroids. Observed fact, for the research team's 228 pairs where the
+  record has a point and the project a pin: production's point lies a median 23 m from the project's pin (25 % within
+  3 m, 75 % within 137 m; 184 of 228 within 300 m) — a median 13 m for records alone at their point (125 of 138 within
+  300 m), 37 m for records at a shared point (59 of 90).
+- **Rules.** The point is production's: this build never moves, merges or snaps one. Records at one point stay separate
+  records: the map draws one mark per point with the count of its records, and the open record's panel names every
+  other record at its point (“จุดเดียวกับอีก N รายการ”). A record's mark is a neutral bullseye, never a house-type cue,
+  from zoom 9.5; the plot type and the finder narrow the marks as they narrow the table; the chosen province's marks
+  are in the focus style, the others quiet.
+- **An open record** is framed on its point in the model preset, the buildings round it drawn as round a project
+  (§6, `js/regions.js`). It lights the drawn buildings in the extent of a project the research team paired with it
+  (§6), when one has an extent. A record's own extent — a spatial join of its point with OpenStreetMap residential areas
+  — is not built yet.
 
 ## 3. The measure
 
@@ -108,8 +134,9 @@ a CityMETER unit of `data/building-units/` holds the ground (the Hotel units, ex
 
 An allocator is named only when its name carries a legal-entity form (8,532 names); the other 2,961 records show no
 allocator. Not copied (`meta.excludedFields`): review queues, identity statuses and scope-review results, review groups,
-issue flags, registration numbers, the raw JSON of the DOL pages, researcher notes, internal sheet and Drive URLs,
-production's district-centroid coordinates, event ids. The research master, its cells, its export and its address, and
+issue flags, registration numbers, the raw JSON of the DOL pages, researcher notes, internal sheet and Drive URLs, the
+research master's coordinate-role labels, event ids. Production's own point for each record is published (§2a), read
+from production's public estate layer. The research master, its cells, its export and its address, and
 the dataset registry's address are never committed (`tests/release.test.js` knows them only by SHA-256). DOL pages are
 public; their reuse terms are not stated (`07_PRODUCTION`): the page links them and copies no page content.
 
@@ -121,6 +148,8 @@ python3 -I scripts/match-extents.py <venues.csv> <pairs.txt> --sha <sha256> --ou
 python3 -I scripts/build-data.py --tabs <tabs-dir> --xlsx <export.xlsx> --index data/area-index.json \
   --frames <school>/data/frames --frames-ref "montri-th/school@<commit> data/frames" --transit <transit checkout> \
   --production <receipts-dir> --osm-match <match.json> --osm-geom <geom.txt> --osm-geom-sha <sha256> --out data
+python3 -I scripts/fetch-record-points.py --out <points-dir>          # production's point of every record (§2a)
+python3 -I scripts/build-record-points.py --fetched <points-dir>      # → data/record-points.json
 npm test
 ```
 

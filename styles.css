@@ -711,6 +711,9 @@ button.fact-chip:hover { background: var(--surface-alt); }
 .metric-switch button:focus-visible { outline: 2px solid var(--interaction-focus-ring); outline-offset: 2px; }
 .legend-station { box-sizing: border-box; width: 10px; height: 10px; border-radius: 50%; background: var(--surface-card); border: 1.6px solid var(--text-secondary); }
 .map-panel.is-province-zoom .legend-station-item { display: none; }
+/* A DOL record at its production point (js/record-points.js): a ring in the card colour with a dot, never a cue. */
+.legend-record { box-sizing: border-box; width: 10px; height: 10px; border-radius: 50%; border: 1.4px solid var(--text-secondary);
+  background: radial-gradient(circle, var(--text-secondary) 0 30%, var(--surface-card) 34%); }
 /* Group bars are buttons (filter to that group); the row keeps the mix grid. */
 .mix-list li:has(> .mix-row) { display: block; }
 .mix-row { display: grid; grid-template-columns: minmax(0, 168px) minmax(0, 1fr) minmax(56px, max-content); align-items: center; gap: 8px; width: calc(100% + 8px); min-height: 32px; margin: 0 -4px; padding: 2px 4px; border: 1px solid transparent; border-radius: var(--radius-sm); background: transparent; color: inherit; font-size: 12px; text-align: left; white-space: normal; }

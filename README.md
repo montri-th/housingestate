@@ -3,7 +3,7 @@
 **แปลงจัดสรรกระจุกอยู่ที่ไหน และรอบแปลงมีหมู่บ้านแบบไหน** — เดโมแผนที่ 3 มิติของหมู่บ้านจัดสรรทั่วประเทศไทย ที่อ่านแปลงจัดสรรตามรายการจัดสรรที่ดินของกรมที่ดิน (ชุดเดียวกับ CityMETER production `?d=estate`) เป็นยอดต่อจังหวัดและอำเภอ แล้วเจาะลงถึงโครงการในบัญชีของผู้พัฒนาที่ทีมวิจัยเก็บ กรอบพื้นที่และอาคารในกรอบแบบ 3 มิติ ป้ายและราคาเริ่มตามหน้าเว็บ นิติบุคคลตามหลักฐาน รายงานของบริษัท สถานีรถไฟฟ้าใกล้แปลง และที่มาของทุกตัวเลข
 
 - เว็บ: https://montri-th.github.io/housingestate/ (ไทย) · https://montri-th.github.io/housingestate/?lang=en (English)
-- รุ่น 0.1.4 · 18 พฤศจิกายน 2569 · ข้อมูลจากชีตวิจัย “CityMETER Housing Estate Thailand — Research Master 2026-11-18” (อ่าน 18 พ.ย. 2569 จากไฟล์ส่งออกของเจ้าของ ไม่เผยแพร่ชีต ที่อยู่ของชีต หรือเซลล์ของชีต) · ยอดตรวจซ้ำกับ CityMETER production วันเดียวกัน
+- รุ่น 0.2.0 · 18 พฤศจิกายน 2569 · ข้อมูลจากชีตวิจัย “CityMETER Housing Estate Thailand — Research Master 2026-11-18” (อ่าน 18 พ.ย. 2569 จากไฟล์ส่งออกของเจ้าของ ไม่เผยแพร่ชีต ที่อยู่ของชีต หรือเซลล์ของชีต) · ยอดตรวจซ้ำกับ CityMETER production วันเดียวกัน
 - โค้ดต่อยอดจาก CityMETER · University (https://github.com/montri-th/university @f610edb, citymeter-shell 0.6.2) ซึ่งต่อยอดจาก School และ Hotel · รุ่นนี้ส่ง citymeter-shell 0.6.3 (เพิ่ม Housing Estate ในตัวเลือกชุดข้อมูล)
 - ทะเบียนชุดข้อมูล: `research.TH.housing_estate` · กลุ่ม Land
 
@@ -40,10 +40,11 @@ npm test    # unit tests บนข้อมูลจริง (node --test)
 | `data/extents.json` | กรอบพื้นที่ OSM 139 กรอบ (ODbL) | หลังหน้าแรก 1.2 วินาที |
 | `data/portfolio.json` | หน้าโครงการ บัญชี นิติบุคคล บริษัทแม่ รายงานของบริษัท เหตุการณ์ คู่กับรายการ | หลังหน้าแรก 2.6 วินาที หรือเมื่อเปิดโครงการ |
 | `data/records.json` | รายการจัดสรร 19,753 รายการ | หลังหน้าแรก 4 วินาที หรือเมื่อเปิดอำเภอ รายการ ตาราง หรือค้นหา |
+| `data/record-points.json` | จุดของรายการทั้ง 19,753 รายการตามที่ CityMETER production วาง (10,987 จุด) | ต่อจาก `data/records.json` |
 | `data/area-index.json` · `data/provinces.geojson` | จังหวัดและอำเภอของ CityMETER production | ทันที |
 | `data/building-units/` | หน่วยอาคาร CityMETER/OSM (ชุดเดียวกับ University) | ตามจังหวัดที่ดู |
 
-สร้างใหม่ด้วย `scripts/build-data.py` (ดู `DATA_METHOD.md` §9) ชีตวิจัยและไฟล์ส่งออกไม่อยู่ใน repo
+สร้างใหม่ด้วย `scripts/build-data.py` และจุดของรายการด้วย `scripts/fetch-record-points.py` → `scripts/build-record-points.py` (ดู `DATA_METHOD.md` §2a และ §9) ชีตวิจัยและไฟล์ส่งออกไม่อยู่ใน repo
 
 ## ตรวจ
 
